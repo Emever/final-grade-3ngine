@@ -24,9 +24,9 @@ public class EngineController {
     
     public EngineController(EngineModel engine) {
         this.engineModel = engine;
-        this.engineView = new EngineView();
-        
         this.fileController = new FileController();
+
+        this.engineView = new EngineView();
     }
     
     public void init() {
@@ -35,6 +35,7 @@ public class EngineController {
         
         this.engineView.updateTitle(this.scene.getTitle());
         this.engineView.setVisible(true);
+        this.engineView.repaint();
     }
     
 }

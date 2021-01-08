@@ -55,12 +55,12 @@ public class FileController {
     }
     
     public SceneObject parseFileToScene() {
-        SceneObject newScene = new SceneObject();
+        SceneObject newScene = null;
         
         try {
             BufferedReader fileInput = new BufferedReader(new FileReader(this.sceneFile));
             // we read the entire document
-            this.readFile(fileInput, newScene);
+            newScene = this.readFile(fileInput);
             
             fileInput.close();
             System.out.println("File read!");
@@ -73,11 +73,14 @@ public class FileController {
         return newScene;
     }
     
-    public void readFile(BufferedReader file, SceneObject scene) throws IOException {
+    public SceneObject readFile(BufferedReader file) throws IOException {
+        SceneObject scene = new SceneObject();
+        
         ArrayList<Vector> vecList = new ArrayList<Vector>();
         ArrayList<Vertex> vxList = new ArrayList<Vertex>();
         
         // grid width, height and spacing
+        scene.setSceneTitle(EngineModel.DEFAULT_SCENE_NAME);
         String line = file.readLine();
         String[] segments = line.split(" ");
         
@@ -113,6 +116,10 @@ public class FileController {
             line = file.readLine();
         }
         
+        // todo: convert from vectors to triangles.
+        // todo: add those triangles to the sceneObject.
+        // todo (opt): read the scene title (file title) - somehow.
+                
+        return scene;
     }
-    
 }
