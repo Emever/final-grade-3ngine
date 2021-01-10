@@ -90,5 +90,4 @@ public class Vector {
                 return 0;
         }
     }
-    
 }

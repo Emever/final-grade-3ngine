@@ -1,12 +1,15 @@
 package model.geometry;
 
+import static java.util.Objects.isNull;
+import model.EngineModel;
+
 /**
  *
  * @author Joel
  */
 public class Vertex {
     private int id;         // numerical identifier
-    private float x,y,z;    // cartesian coordinates
+    private float x,y,z;    // cartesian coordinates (in scene)
     
     public Vertex() {
         this.id = 0;
@@ -20,7 +23,19 @@ public class Vertex {
         this.y = y;
         this.z = 0;
     }
+    public Vertex(float x, float y, float z) {
+        this.id = 0;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
     public Vertex(int id, float x, float y, float z) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    public Vertex(int id, float x, float y, float z, float[][] projMatrix) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -44,7 +59,7 @@ public class Vertex {
     }
 
     public float getX() {
-        return x;
+        return this.x;
     }
 
     public void setX(float x) {
@@ -52,7 +67,7 @@ public class Vertex {
     }
 
     public float getY() {
-        return y;
+        return this.y;
     }
 
     public void setY(float y) {
@@ -60,11 +75,21 @@ public class Vertex {
     }
 
     public float getZ() {
-        return z;
+        return this.z;
     }
 
     public void setZ(float z) {
         this.z = z;
     }
     
+    public void copyValues() {
+        
+    }
+    
+    public void scaleToView() {
+        this.x = this.x + 1f;
+        this.x = this.x * 0.5f * (float)EngineModel.dimX; // scale to half of the screen
+        this.y = this.y + 1f;
+        this.y = this.y * 0.5f * (float)EngineModel.dimY; // scale to half of the screen
+    }
 }
