@@ -92,4 +92,11 @@ public class Vertex {
         this.y = this.y + 1f;
         this.y = this.y * 0.5f * (float)EngineModel.dimY; // scale to half of the screen
     }
+    
+    public boolean translate(float x, float y, float z) {
+        this.x += x;
+        this.y += y;
+        this.z += z;
+        return true;    // we leave it this way in case we need to check anything later on
+    }
 }

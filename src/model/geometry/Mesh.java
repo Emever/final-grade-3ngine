@@ -1,5 +1,6 @@
 package model.geometry;
 
+import controller.EngineController;
 import java.util.ArrayList;
 
 /**
@@ -53,11 +54,17 @@ public class Mesh {
         return max;
     }
     
-    public void calculateAllProjections(float[][] projectionMatrix) {
+    // PROJECTION METHOD
+    public void calculateAllProjections() {
         for (Triangle t:this.tris) {
-            t.calculateTriangleProjection(projectionMatrix);
+            t.calculateTriangleProjection();
             t.scaleVertexToView();
         }
     }
     
+    // TRANSLATING MESH
+    public void editTranslate(float x, float y, float z) {
+        for (Triangle t:this.tris)
+            t.editTranslate(x,y,z);
+    }
 }

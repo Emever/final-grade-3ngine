@@ -1,5 +1,6 @@
 package model.geometry;
 
+import controller.EngineController;
 import java.util.ArrayList;
 import utils.UtilsMath;
 
@@ -92,24 +93,28 @@ public class Triangle {
         this.vProjection = vProjection;
     }
     
-    public void calculateTriangleProjection(float[][] m) {
+    
+    // PROJECTION METHODS
+    
+    public void calculateTriangleProjection() {
         this.vProjection[0] = new Vertex();
         this.vProjection[1] = new Vertex();
         this.vProjection[2] = new Vertex();
         UtilsMath.CopyVertexValues(this.vList[0], this.vProjection[0]);
         UtilsMath.CopyVertexValues(this.vList[1], this.vProjection[1]);
         UtilsMath.CopyVertexValues(this.vList[2], this.vProjection[2]);
-        System.out.println("Before projection ____________");
+        /*System.out.println("Before projection ____________");
         System.out.println(this.vProjection[0].toString());
         System.out.println(this.vProjection[1].toString());
-        System.out.println(this.vProjection[2].toString());
-        UtilsMath.MultiplyMatrixVector(this.vList[0], this.vProjection[0], m);
-        UtilsMath.MultiplyMatrixVector(this.vList[1], this.vProjection[1], m);
-        UtilsMath.MultiplyMatrixVector(this.vList[2], this.vProjection[2], m);
-        System.out.println("After projection ____________");
+        System.out.println(this.vProjection[2].toString());*/
+        // Projection calculation
+        UtilsMath.MultiplyMatrixVector(this.vList[0], this.vProjection[0]);
+        UtilsMath.MultiplyMatrixVector(this.vList[1], this.vProjection[1]);
+        UtilsMath.MultiplyMatrixVector(this.vList[2], this.vProjection[2]);
+        /*System.out.println("After projection ____________");
         System.out.println(this.vProjection[0].toString());
         System.out.println(this.vProjection[1].toString());
-        System.out.println(this.vProjection[2].toString());
+        System.out.println(this.vProjection[2].toString());*/
     }
     
     public void scaleVertexToView() {
@@ -120,5 +125,13 @@ public class Triangle {
         System.out.println(this.vProjection[0].toString());
         System.out.println(this.vProjection[1].toString());
         System.out.println(this.vProjection[2].toString());
+    }
+    
+    
+    // EDIT TRIANGLE METHODS
+    public void editTranslate(float x, float y, float z) {
+        this.vList[0].translate(x,y,z);
+        this.vList[1].translate(x,y,z);
+        this.vList[2].translate(x,y,z);
     }
 }

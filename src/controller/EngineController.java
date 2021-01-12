@@ -10,6 +10,7 @@ import java.awt.event.KeyListener;
 import model.EngineModel;
 import model.SceneObject;
 import model.geometry.*;
+import utils.UtilsMath;
 import view.EngineView;
 
 /**
@@ -25,6 +26,9 @@ public class EngineController implements KeyListener {
     
     private SceneObject scene;
 
+    
+    public static float[][] projectionMatrix;
+    
     
     public EngineController(EngineModel engine) {
         this.engineModel = engine;
@@ -42,26 +46,32 @@ public class EngineController implements KeyListener {
         this.engineView.updateTitle(this.scene.getTitle());
         
         // create the projection matrix (it won't change whilst running)
-        float fNear = .1f;
-        float fFar = 1000f;
+        float fNear = 0.1f;
+        float fFar = 1000.0f;
         float fQ = fFar/(fFar-fNear);
-        float fFOV = (float)(Math.PI/2);   // direct value in radians
-        float fARatio = (EngineModel.dimY/EngineModel.dimX);
-        float fFOVRad = 1f/(float)Math.tan(fFOV*.5f);    // in radians
+        float fFOV = UtilsMath.DegToRads(90f);   // direct value in radians
+        float fAspectRatio = (float)EngineModel.dimY / (float)EngineModel.dimX;
+        float fFOVRad = 1.0f / (float)Math.tan(fFOV*.5f);    // in radians
         
         float[][] matProj = {
-            {fARatio * fFOVRad,    0,  0,  0},
+            {fAspectRatio * fFOVRad,    0,  0,  0},
             {0, fFOVRad,    0,  0},
-            {0, 0,  fQ,  1},
+            {0, 0,  fQ,     1.0f},
             {0, 0,  -fNear * fQ,  0}
         };
+        EngineController.projectionMatrix = matProj;
         
         
         // DEVELOPING MODIFICATIONS of the SCENE
         // 1. Create the mesh in space
         Mesh cube = this.createTestCube();
         // 2. Calculate its vertexes' projection (frustum)
-        cube.calculateAllProjections(matProj);
+        cube.calculateAllProjections();
+        // EXTRA: WE TRANSLATE THE TRIANGLE
+        cube.editTranslate(0,0,3f);
+        // now we need to recalculate the projection
+        cube.calculateAllProjections();
+        
         this.scene.addMesh(cube);
         // 3. Render the projection into the screen (automatic)
         this.engineView.repaint();
@@ -123,11 +133,48 @@ public class EngineController implements KeyListener {
     
     @Override
     public void keyPressed(KeyEvent e) {
-        int key = e.getKeyCode();
         
-        if (key == KeyEvent.VK_ESCAPE) {
-            System.out.println("Closing...");
-            System.exit(0);
+        switch(e.getKeyCode()) {
+            case KeyEvent.VK_ESCAPE:
+                System.out.println("Closing...");
+                System.exit(0);
+                break;
+            
+            case KeyEvent.VK_W:
+                this.scene.getFromMeshList(0).editTranslate(0,0,-.02f);
+                this.scene.getFromMeshList(0).calculateAllProjections();
+                this.engineView.repaint();
+                break;
+            
+            case KeyEvent.VK_S:
+                this.scene.getFromMeshList(0).editTranslate(0,0,.02f);
+                this.scene.getFromMeshList(0).calculateAllProjections();
+                this.engineView.repaint();
+                break;
+                
+            case KeyEvent.VK_A:
+                this.scene.getFromMeshList(0).editTranslate(.02f,0,0);
+                this.scene.getFromMeshList(0).calculateAllProjections();
+                this.engineView.repaint();
+                break;
+                
+            case KeyEvent.VK_D:
+                this.scene.getFromMeshList(0).editTranslate(-.02f,0,0);
+                this.scene.getFromMeshList(0).calculateAllProjections();
+                this.engineView.repaint();
+                break;
+                
+            case KeyEvent.VK_UP:
+                this.scene.getFromMeshList(0).editTranslate(0,.02f,0);
+                this.scene.getFromMeshList(0).calculateAllProjections();
+                this.engineView.repaint();
+                break;
+                
+            case KeyEvent.VK_DOWN:
+                this.scene.getFromMeshList(0).editTranslate(0,-.02f,0);
+                this.scene.getFromMeshList(0).calculateAllProjections();
+                this.engineView.repaint();
+                break;
         }
     }
     

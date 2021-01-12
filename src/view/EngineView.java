@@ -54,18 +54,20 @@ public class EngineView extends JComponent {
     public void paint(Graphics g) {
         this.g2 = (Graphics2D) g;
         
-        System.out.println("YA ERA HORA OSTIA");
+        System.out.println("Paint starts _________");
         
         Shape background = new Rectangle2D.Float(0,0, EngineModel.dimX, EngineModel.dimY);
         this.g2.setColor(Color.DARK_GRAY);
         this.g2.fill(background);
         
-        // we draw all the triangles from the scene
-        // -> every mesh from the scene
-        System.out.println("Dibujando meshes...");
+        // we draw all the triangles from every mesh of the scene
+        System.out.print("Drawing meshes...");
+        
         for (Mesh m:this.engineController.getScene().getMeshList())
             for (Triangle t:m.getTris()) // -> every triangle from every mesh
                 this.drawTriangle(t);
+        
+        System.out.println(" done!");
     }
     
     public void drawTriangle(Triangle t) {
@@ -88,28 +90,6 @@ public class EngineView extends JComponent {
                 (int)t.getProjectionVertex(2).getY(),
                 (int)t.getProjectionVertex(0).getX(),
                 (int)t.getProjectionVertex(0).getY()
-            );
-       
-        // square test
-        this.g2.drawLine(
-                (int)t.getProjectionVertex(0).getX()-10,
-                (int)t.getProjectionVertex(0).getY()-10,
-                (int)t.getProjectionVertex(0).getX()+10,
-                (int)t.getProjectionVertex(0).getY()+10
-            );
-        this.g2.setColor(Color.BLUE);
-        this.g2.drawLine(
-                (int)t.getProjectionVertex(1).getX()-10,
-                (int)t.getProjectionVertex(1).getY()-10,
-                (int)t.getProjectionVertex(1).getX()+10,
-                (int)t.getProjectionVertex(1).getY()+10
-            );
-        this.g2.setColor(Color.GREEN);
-        this.g2.drawLine(
-                (int)t.getProjectionVertex(2).getX()-10,
-                (int)t.getProjectionVertex(2).getY()-10,
-                (int)t.getProjectionVertex(2).getX()+10,
-                (int)t.getProjectionVertex(2).getY()+10
             );
     }
 }

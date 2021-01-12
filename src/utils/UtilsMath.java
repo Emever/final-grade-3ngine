@@ -5,6 +5,7 @@
  */
 package utils;
 
+import controller.EngineController;
 import model.geometry.*;
 
 /**
@@ -12,7 +13,13 @@ import model.geometry.*;
  * @author Joel
  */
 public class UtilsMath {
-    public static void MultiplyMatrixVector(Vertex vI, Vertex vO, float[][] m) {
+    public static float DegToRads(float degreeAngle) {
+        return degreeAngle/180 * 3.14159f;
+    }
+    
+    public static void MultiplyMatrixVector(Vertex vI, Vertex vO) {
+        float[][] m = EngineController.projectionMatrix;
+        
         vO.setX(vI.getX()*m[0][0] + vI.getY()*m[1][0] + vI.getZ()*m[2][0] + m[3][0]);
         vO.setY(vI.getX()*m[0][1] + vI.getY()*m[1][1] + vI.getZ()*m[2][1] + m[3][1]);
         vO.setZ(vI.getX()*m[0][2] + vI.getY()*m[1][2] + vI.getZ()*m[2][2] + m[3][2]);
