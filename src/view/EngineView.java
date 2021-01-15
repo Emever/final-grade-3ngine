@@ -1,8 +1,10 @@
 package view;
 
 import controller.EngineController;
+import controller.EngineLoopThread;
 import javax.swing.JComponent;
 import javax.swing.JFrame;import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -54,20 +56,23 @@ public class EngineView extends JComponent {
     public void paint(Graphics g) {
         this.g2 = (Graphics2D) g;
         
-        System.out.println("Paint starts _________");
-        
+        //System.out.println("Paint starts _________");
         Shape background = new Rectangle2D.Float(0,0, EngineModel.dimX, EngineModel.dimY);
         this.g2.setColor(Color.DARK_GRAY);
         this.g2.fill(background);
         
-        // we draw all the triangles from every mesh of the scene
-        System.out.print("Drawing meshes...");
+        //Show the frames ratio
+        this.g2.setColor(Color.YELLOW);
+        this.g2.setFont(new Font("Serif", Font.PLAIN, 12));
+        this.g2.drawString(EngineLoopThread.nFramesLoop+" fps", 10, 10);
         
+        // we draw all the triangles from every mesh of the scene
+        //System.out.print("Drawing meshes...");
         for (Mesh m:this.engineController.getScene().getMeshList())
             for (Triangle t:m.getTris()) // -> every triangle from every mesh
                 this.drawTriangle(t);
         
-        System.out.println(" done!");
+        //System.out.println(" done!");
     }
     
     public void drawTriangle(Triangle t) {

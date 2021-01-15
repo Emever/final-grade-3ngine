@@ -42,6 +42,9 @@ public class Mesh {
     public void addTriangle(int id, Vertex v1, Vertex v2, Vertex v3) {
         this.tris.add(new Triangle(id,v1,v2,v3));
     }
+    public Triangle getTriangle(int i) {
+        return this.tris.get(i);
+    }
     public void removeTriangle(int i) {
         this.tris.remove(i);
     }
@@ -57,6 +60,7 @@ public class Mesh {
     // PROJECTION METHOD
     public void calculateAllProjections() {
         for (Triangle t:this.tris) {
+            // aqui hay un calculo que está "un poco mal"
             t.calculateTriangleProjection();
             t.scaleVertexToView();
         }
@@ -66,5 +70,14 @@ public class Mesh {
     public void editTranslate(float x, float y, float z) {
         for (Triangle t:this.tris)
             t.editTranslate(x,y,z);
+    }
+    // ROTATING MESH
+    public void editRotateZ() {
+        for (Triangle t:this.tris)
+            t.editRotateZ();
+    }
+    public void editRotateX() {
+        for (Triangle t:this.tris)
+            t.editRotateX();
     }
 }

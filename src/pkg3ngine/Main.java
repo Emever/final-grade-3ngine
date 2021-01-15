@@ -14,6 +14,7 @@ public class Main {
         EngineController engineController = new EngineController(engineModel);
         
         engineController.init();
+        engineController.startLoop();
     }
     
 }

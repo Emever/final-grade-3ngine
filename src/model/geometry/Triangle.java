@@ -11,6 +11,7 @@ import utils.UtilsMath;
 public class Triangle {
     private int id;
     private Vertex[] vList;
+    private Vertex[] vRotation;
     private Vertex[] vProjection;
     
     public Triangle() {
@@ -21,6 +22,7 @@ public class Triangle {
         this.vProjection = new Vertex[3];
         for (int i=0; i<3; i++)
             this.vProjection[i] = new Vertex();
+        this.vRotation = new Vertex[3];
     }
     public Triangle(Vertex v1, Vertex v2, Vertex v3) {
         this.id = 0;
@@ -32,6 +34,7 @@ public class Triangle {
         this.vProjection = new Vertex[3];
         for (int i=0; i<3; i++)
             this.vProjection[i] = new Vertex();
+        this.vRotation = new Vertex[3];
     }
     public Triangle(int id, Vertex v1, Vertex v2, Vertex v3) {
         this.id = id;
@@ -43,6 +46,7 @@ public class Triangle {
         this.vProjection = new Vertex[3];
         for (int i=0; i<3; i++)
             this.vProjection[i] = new Vertex();
+        this.vRotation = new Vertex[3];
     }
     public Triangle(int id, Vertex[] vs) {
         this.id = 0;
@@ -53,6 +57,7 @@ public class Triangle {
         this.vProjection = new Vertex[3];
         for (int i=0; i<3; i++)
             this.vProjection[i] = new Vertex();
+        this.vRotation = new Vertex[3];
     }
     
     public int getId() {
@@ -92,39 +97,34 @@ public class Triangle {
     public void setvProjection(Vertex[] vProjection) {
         this.vProjection = vProjection;
     }
+
+    public Vertex[] getvRotation() {
+        return vRotation;
+    }
+    
     
     
     // PROJECTION METHODS
     
     public void calculateTriangleProjection() {
-        this.vProjection[0] = new Vertex();
-        this.vProjection[1] = new Vertex();
-        this.vProjection[2] = new Vertex();
-        UtilsMath.CopyVertexValues(this.vList[0], this.vProjection[0]);
-        UtilsMath.CopyVertexValues(this.vList[1], this.vProjection[1]);
-        UtilsMath.CopyVertexValues(this.vList[2], this.vProjection[2]);
-        /*System.out.println("Before projection ____________");
-        System.out.println(this.vProjection[0].toString());
-        System.out.println(this.vProjection[1].toString());
-        System.out.println(this.vProjection[2].toString());*/
-        // Projection calculation
-        UtilsMath.MultiplyMatrixVector(this.vList[0], this.vProjection[0]);
-        UtilsMath.MultiplyMatrixVector(this.vList[1], this.vProjection[1]);
-        UtilsMath.MultiplyMatrixVector(this.vList[2], this.vProjection[2]);
-        /*System.out.println("After projection ____________");
-        System.out.println(this.vProjection[0].toString());
-        System.out.println(this.vProjection[1].toString());
-        System.out.println(this.vProjection[2].toString());*/
+        for (int i=0; i<3; i++) {
+            UtilsMath.CopyVertexValues(this.vList[i], this.vProjection[i]);
+            UtilsMath.MultiplyMatrixVector(this.vList[i], this.vProjection[i], EngineController.projectionMatrix);
+        }
+    }
+    public void calculateTriangleProjection(Vertex[] v) {
+        for (int i=0; i<3; i++) {
+            UtilsMath.MultiplyMatrixVector(v[i], this.vProjection[i], EngineController.projectionMatrix);
+        }
     }
     
     public void scaleVertexToView() {
-        this.vProjection[0].scaleToView();
-        this.vProjection[1].scaleToView();
-        this.vProjection[2].scaleToView();
-        System.out.println("After scaling ____________");
+        for (int i=0; i<3; i++)
+            this.vProjection[i].scaleToView();
+        /*System.out.println("After scaling ____________");
         System.out.println(this.vProjection[0].toString());
         System.out.println(this.vProjection[1].toString());
-        System.out.println(this.vProjection[2].toString());
+        System.out.println(this.vProjection[2].toString());*/
     }
     
     
@@ -133,5 +133,18 @@ public class Triangle {
         this.vList[0].translate(x,y,z);
         this.vList[1].translate(x,y,z);
         this.vList[2].translate(x,y,z);
+    }
+    public void editRotateZ() {
+        for (int i=0; i<3; i++) {
+            this.vRotation[i] = new Vertex();
+            UtilsMath.CopyVertexValues(this.vList[i], this.vRotation[i]);
+            UtilsMath.MultiplyMatrixVector(this.vList[i], this.vRotation[i], EngineController.rotationMatrixZ);
+        }
+    }
+    public void editRotateX() {
+        for (int i=0; i<3; i++) {
+            UtilsMath.CopyVertexValues(this.vList[i], this.vRotation[i]);
+            UtilsMath.MultiplyMatrixVector(this.vList[i], this.vRotation[i], EngineController.rotationMatrixX);
+        }
     }
 }

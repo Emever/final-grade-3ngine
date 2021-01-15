@@ -53,50 +53,38 @@ public class Vertex {
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public float getX() {
         return this.x;
     }
-
     public void setX(float x) {
         this.x = x;
     }
-
     public float getY() {
         return this.y;
     }
-
     public void setY(float y) {
         this.y = y;
     }
-
     public float getZ() {
         return this.z;
     }
-
     public void setZ(float z) {
         this.z = z;
     }
     
-    public void copyValues() {
-        
-    }
-    
     public void scaleToView() {
-        this.x = this.x + 1f;
-        this.x = this.x * 0.5f * (float)EngineModel.dimX; // scale to half of the screen
-        this.y = this.y + 1f;
-        this.y = this.y * 0.5f * (float)EngineModel.dimY; // scale to half of the screen
+        this.x += 1f;
+        this.x *= 0.5f * (float)EngineModel.dimX; // scale to half of the screen
+        this.y += 1f;
+        this.y *= 0.5f * (float)EngineModel.dimY; // scale to half of the screen
     }
     
-    public boolean translate(float x, float y, float z) {
+    public void translate(float x, float y, float z) {
         this.x += x;
         this.y += y;
         this.z += z;
-        return true;    // we leave it this way in case we need to check anything later on
     }
 }
