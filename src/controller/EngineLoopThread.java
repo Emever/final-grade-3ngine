@@ -12,11 +12,13 @@ public class EngineLoopThread extends Thread {
     
     public static double elapsedTime;
     public static int nFramesLoop;
+    public static long frameCount;
     
     public EngineLoopThread(EngineController c) {
         this.controller = c;
         EngineLoopThread.elapsedTime = TPFmillis;
         EngineLoopThread.nFramesLoop = 0;
+        EngineLoopThread.frameCount = 0;
     }
     
     @Override
@@ -32,9 +34,11 @@ public class EngineLoopThread extends Thread {
             if (EngineLoopThread.elapsedTime >= TPFmillis) {
                 EngineLoopThread.nFramesLoop++;
                 lastCheckedTime = System.currentTimeMillis();
+                EngineLoopThread.frameCount++;
                 //System.out.println("Frame!");
+                
                 if (EngineLoopThread.nFramesLoop >= EngineLoopThread.FPS) {
-                    //System.out.println("Second!");
+                    System.out.println("Second!");
                     EngineLoopThread.nFramesLoop = 0;
                 }
                 this.controller.loopFunction();

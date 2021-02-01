@@ -17,11 +17,13 @@ public class UtilsMath {
     }
     
     public static void MultiplyMatrixVector(Vertex vI, Vertex vO, float[][] m) {
-        
-        vO.setX(vI.getX()*m[0][0] + vI.getY()*m[1][0] + vI.getZ()*m[2][0] + m[3][0]);
-        vO.setY(vI.getX()*m[0][1] + vI.getY()*m[1][1] + vI.getZ()*m[2][1] + m[3][1]);
-        vO.setZ(vI.getX()*m[0][2] + vI.getY()*m[1][2] + vI.getZ()*m[2][2] + m[3][2]);
-        float w = vI.getX()*m[0][3] + vI.getY()*m[1][3] + vI.getZ()*m[2][3] + m[3][3];
+        // we have to duplicate our inputVector, in case vI equals vO, so
+        // our vars doesnt update constatly whilst calculating the new vO.
+        Vertex newInput = new Vertex(vI.getX(), vI.getY(), vI.getZ());
+        vO.setX(newInput.getX()*m[0][0] + newInput.getY()*m[1][0] + newInput.getZ()*m[2][0] + m[3][0]);
+        vO.setY(newInput.getX()*m[0][1] + newInput.getY()*m[1][1] + newInput.getZ()*m[2][1] + m[3][1]);
+        vO.setZ(newInput.getX()*m[0][2] + newInput.getY()*m[1][2] + newInput.getZ()*m[2][2] + m[3][2]);
+        float w = newInput.getX()*m[0][3] + newInput.getY()*m[1][3] + newInput.getZ()*m[2][3] + m[3][3];
         
         if (w != 0.0f) {
             vO.setX(vO.getX() / w);

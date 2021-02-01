@@ -2,6 +2,7 @@ package model.geometry;
 
 import controller.EngineController;
 import java.util.ArrayList;
+import utils.UtilsMath;
 
 /**
  *
@@ -57,6 +58,16 @@ public class Mesh {
         return max;
     }
     
+    // VPROCESS MANAGEMENT
+    public void initTrianglesVProcess() {
+        for (Triangle t:this.tris)
+            t.initVProcess();
+    }
+    public void updateVListWithVProcess() {
+        for (Triangle t:this.tris)
+            t.updateVList();
+    }
+    
     // PROJECTION METHOD
     public void calculateAllProjections() {
         for (Triangle t:this.tris) {
@@ -71,6 +82,10 @@ public class Mesh {
         for (Triangle t:this.tris)
             t.editTranslate(x,y,z);
     }
+    public void editTranslate(float x, float y, float z, String vertexToUpdate) {
+        for (Triangle t:this.tris)
+            t.editTranslate(x,y,z,vertexToUpdate);
+    }
     // ROTATING MESH
     public void editRotateZ() {
         for (Triangle t:this.tris)
@@ -79,5 +94,13 @@ public class Mesh {
     public void editRotateX() {
         for (Triangle t:this.tris)
             t.editRotateX();
+    }
+    public void editRotateZFromVector(String vFromUpdate) {
+        for (Triangle t:this.tris)
+            t.editRotateZFromVector(vFromUpdate);
+    }
+    public void editRotateXFromVector(String vFromUpdate) {
+        for (Triangle t:this.tris)
+            t.editRotateXFromVector(vFromUpdate);
     }
 }
