@@ -2,6 +2,7 @@ package model.geometry;
 
 import controller.EngineController;
 import java.util.ArrayList;
+import model.CameraModel;
 import utils.UtilsMath;
 
 /**
@@ -13,6 +14,7 @@ public class Triangle {
     private Vertex[] vList;
     private Vertex[] vProcess;
     private Vertex[] vProjection;
+    private Vertex vNormal;
     
     public Triangle() {
         this.id = 0;
@@ -27,6 +29,7 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
+        this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
     }
     public Triangle(Vertex v1, Vertex v2, Vertex v3) {
         this.id = 0;
@@ -43,6 +46,7 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
+        this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
     }
     public Triangle(int id, Vertex v1, Vertex v2, Vertex v3) {
         this.id = id;
@@ -59,6 +63,7 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
+        this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
     }
     public Triangle(int id, Vertex[] vs) {
         this.id = 0;
@@ -74,6 +79,7 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
+        this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
     }
     
     public int getId() {
@@ -81,6 +87,20 @@ public class Triangle {
     }
     public void setId(int id) {
         this.id = id;
+    }
+    public void setVNormal(Vertex n) {
+        this.vNormal = n;
+    }
+    public Vertex getNormalVector() {
+        return this.vNormal;
+    }
+    public boolean isVisible() {
+        //boolean view = this.vNormal.getZ() < 0;
+        boolean view =
+            this.vNormal.getX() * (this.vProcess[0].getX() - EngineController.camera.getPos().getX()) +
+            this.vNormal.getY() * (this.vProcess[0].getY() - EngineController.camera.getPos().getY()) +
+            this.vNormal.getZ() * (this.vProcess[0].getZ() - EngineController.camera.getPos().getZ()) < 0;
+        return view;
     }
     public Vertex[] getvList() {
         return vList;
@@ -134,12 +154,12 @@ public class Triangle {
     public void calculateTriangleProjection() {
         for (int i=0; i<3; i++) {
             UtilsMath.CopyVertexValues(this.vProcess[i], this.vProjection[i]);
-            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProjection[i], EngineController.projectionMatrix);
+            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProjection[i], CameraModel.projectionMatrix);
         }
     }
     public void calculateTriangleProjection(Vertex[] v) {
         for (int i=0; i<3; i++) {
-            UtilsMath.MultiplyMatrixVector(v[i], this.vProjection[i], EngineController.projectionMatrix);
+            UtilsMath.MultiplyMatrixVector(v[i], this.vProjection[i], CameraModel.projectionMatrix);
         }
     }
     
@@ -176,32 +196,32 @@ public class Triangle {
     }
     public void editRotateZ() {
         for (int i=0; i<3; i++)
-            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], EngineController.rotationMatrixZ);
+            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixZ);
     }
     public void editRotateX() {
         for (int i=0; i<3; i++)
-            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], EngineController.rotationMatrixX);
+            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixX);
     }
     public void editRotateZFromVector(String vFromUpdate) {
         if (vFromUpdate.compareTo("vprocess") == 0)
             for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], EngineController.rotationMatrixZ);
+                UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixZ);
         else if (vFromUpdate.compareTo("vlist") == 0)
             for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vList[i], this.vProcess[i], EngineController.rotationMatrixZ);
+                UtilsMath.MultiplyMatrixVector(this.vList[i], this.vProcess[i], CameraModel.rotationMatrixZ);
         else if (vFromUpdate.compareTo("vprojection") == 0)
             for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vProjection[i], this.vProcess[i], EngineController.rotationMatrixZ);
+                UtilsMath.MultiplyMatrixVector(this.vProjection[i], this.vProcess[i], CameraModel.rotationMatrixZ);
     }
     public void editRotateXFromVector(String vFromUpdate) {
         if (vFromUpdate.compareTo("vprocess") == 0)
             for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], EngineController.rotationMatrixX);
+                UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixX);
         else if (vFromUpdate.compareTo("vlist") == 0)
             for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vList[i], this.vProcess[i], EngineController.rotationMatrixX);
+                UtilsMath.MultiplyMatrixVector(this.vList[i], this.vProcess[i], CameraModel.rotationMatrixX);
         else if (vFromUpdate.compareTo("vprojection") == 0)
             for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vProjection[i], this.vProcess[i], EngineController.rotationMatrixX);
+                UtilsMath.MultiplyMatrixVector(this.vProjection[i], this.vProcess[i], CameraModel.rotationMatrixX);
     }
 }

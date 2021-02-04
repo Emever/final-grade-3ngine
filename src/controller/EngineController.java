@@ -7,6 +7,7 @@ package controller;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import model.CameraModel;
 import model.EngineModel;
 import model.SceneObject;
 import model.geometry.*;
@@ -27,17 +28,14 @@ public class EngineController implements KeyListener {
     private FileController fileController;
     
     private SceneObject scene;
-
-    
-    public static float[][] projectionMatrix;
+    public static CameraModel camera;
     public static float fTheta;
-    public static float[][] rotationMatrixX, rotationMatrixZ;
     
     public EngineController(EngineModel engine) {
         this.loopIsOn = false;
         
         this.engineModel = engine;
-        this.fileController = new FileController();
+        this.fileController = new FileController(this);
         this.inputController = new UserInputController(this);
 
         this.engineView = new EngineView(this);
@@ -63,7 +61,6 @@ public class EngineController implements KeyListener {
     
     
     // Engine algorythm ________________________________________________________
-    
     public void init() {
         // 1. CREATE THE SCENE OBJECT
         // read a scene file
@@ -72,32 +69,31 @@ public class EngineController implements KeyListener {
         // update the engine vars with the new scene
         this.engineView.updateTitle(this.scene.getTitle());
         
-        // 2. CREATE MATRIXES AND MATH VARS(PROJECTION, ETC.)
-        this.createProjectionMatrix();
+        // 2. CREATE THE CAMERA FOR THE SCENE
         EngineController.fTheta = 0.0f;
-        this.createRotationMatrixX();
-        this.createRotationMatrixZ();
+        this.camera = new CameraModel(this);
+        this.camera.init();
         
-        
-        
-        // DEVELOPING MODIFICATIONS of the SCENE
-        // 1. Create the mesh in space
+        // 3. MODIFY THE "TEST SCENE"
+        // 3.1. Create the mesh in space
         Mesh cube = this.createTestCube();
-        
-        
         this.scene.addMesh(cube);
-        // 3. Render the projection into the screen (automatic)
-        this.engineView.repaint();
         
-        // render the scene
+        // 4. ENGINE IS READY TO RENDER
         this.engineView.setVisible(true);
-
     }
     
     public void startLoop() {
         this.mainLoop = new EngineLoopThread(this);
         this.loopIsOn = true;
         this.mainLoop.start();
+    }
+        
+    public void exitEngine() {
+        this.loopIsOn = false;
+        System.out.println(" done!");
+        System.out.println("Closing...");
+        System.exit(0);
     }
     
     private Mesh createTestCube() {
@@ -167,12 +163,15 @@ public class EngineController implements KeyListener {
             m.initTrianglesVProcess();
            
             // 1. ROTATIONS
-            this.updateRotationMatrixes();
+            this.camera.updateRotationMatrixes();
             m.editRotateZFromVector("vlist");
             m.editRotateXFromVector("vprocess");
             
             // 2. TRANSLATING
             m.editTranslate(0,0,3f, "vprocess");
+            
+            // 2.5. GETTING TRIANGLES' NORMAL VECTORS
+            m.loadNormals();
             
             // 3. PROJECTION
             m.calculateAllProjections();
@@ -190,10 +189,7 @@ public class EngineController implements KeyListener {
         switch(e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
                 System.out.print("Stopping main loop...");
-                this.loopIsOn = false;
-                System.out.println(" done!");
-                System.out.println("Closing...");
-                System.exit(0);
+                this.exitEngine();
                 break;
             
             case KeyEvent.VK_H:     // HELP COMMAND
@@ -247,55 +243,4 @@ public class EngineController implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent ke) {}
-
-    
-    
-    // Create matrixes
-    public void createProjectionMatrix() {
-        // create the projection matrix (it won't change whilst running)
-        float fNear = .1f;
-        float fFar = 1000.0f;
-        float fQ = fFar/(fFar-fNear);
-        float fFOV = UtilsMath.DegToRads(90f);   // direct value in radians
-        float fAspectRatio = (float)EngineModel.dimY / (float)EngineModel.dimX;
-        float fFOVRad = 1.0f / (float)Math.tan(fFOV*.5f);    // in radians
-        
-        float[][] matProj = {
-            {fAspectRatio * fFOVRad,    0,  0,  0},
-            {0, fFOVRad,    0,  0},
-            {0, 0,  fQ,     1.0f},
-            {0, 0,  -fNear * fQ,  0}
-        };
-        EngineController.projectionMatrix = matProj;
-    }
-    public void createRotationMatrixZ() {
-        float[][] rotZ = {
-            {(float)Math.cos(EngineController.fTheta), (float)Math.sin(EngineController.fTheta), 0, 0},
-            {(float)-Math.sin(EngineController.fTheta), (float)Math.cos(EngineController.fTheta), 0, 0},
-            {0, 0, 1, 0},
-            {0, 0, 0, 1}
-        };
-        EngineController.rotationMatrixZ = rotZ;
-    }
-    public void createRotationMatrixX() {
-        float[][] rotX = {
-            {1, 0, 0, 0},
-            {0, (float)Math.cos(EngineController.fTheta/2), (float)Math.sin(EngineController.fTheta/2), 0},
-            {0, -(float)Math.sin(EngineController.fTheta/2), (float)Math.cos(EngineController.fTheta/2), 0},
-            {0, 0, 0, 1}
-        };
-        EngineController.rotationMatrixX = rotX;
-    }
-    public void updateRotationMatrixes() {
-        // Z Rotation Matrix
-        EngineController.rotationMatrixZ[0][0] = (float)Math.cos(EngineController.fTheta);
-        EngineController.rotationMatrixZ[1][1] = (float)Math.cos(EngineController.fTheta);
-        EngineController.rotationMatrixZ[0][1] = (float)Math.sin(EngineController.fTheta);
-        EngineController.rotationMatrixZ[1][0] = -(float)Math.sin(EngineController.fTheta);
-        // X Rotation Matrix
-        EngineController.rotationMatrixX[1][1] = (float)Math.cos(EngineController.fTheta/2);
-        EngineController.rotationMatrixX[2][2] = (float)Math.cos(EngineController.fTheta/2);
-        EngineController.rotationMatrixX[1][2] = (float)Math.sin(EngineController.fTheta/2);
-        EngineController.rotationMatrixX[2][1] = -(float)Math.sin(EngineController.fTheta/2);
-    }
 }

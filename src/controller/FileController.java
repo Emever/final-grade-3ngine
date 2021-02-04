@@ -15,8 +15,10 @@ public class FileController {
     private String path;
     private File scenesDirectory;
     private File sceneFile;
+    private EngineController engine;
     
-    public FileController() {
+    public FileController(EngineController controller) {
+        this.engine = controller;
         this.sceneFile = null;
         this.scenesDirectory = new File(EngineModel.DEFAULT_DIRECTORY_NAME);
         this.path = "";
@@ -51,6 +53,8 @@ public class FileController {
             } else {
                 System.out.println("Something bad happened opening the file");
             }
+        } else {
+            this.engine.exitEngine();
         }
     }
     

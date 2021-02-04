@@ -103,4 +103,9 @@ public class Mesh {
         for (Triangle t:this.tris)
             t.editRotateXFromVector(vFromUpdate);
     }
+    
+    public void loadNormals() {
+        for (Triangle t:this.tris)
+            t.setVNormal(UtilsMath.GetNormalFromTriangle(t, null));
+    }
 }

@@ -10,36 +10,42 @@ import model.EngineModel;
 public class Vertex {
     private int id;         // numerical identifier
     private float x,y,z;    // cartesian coordinates (in scene)
+    private String task;
     
     public Vertex() {
         this.id = 0;
         this.x = 0;
         this.y = 0;
         this.z = 0;
+        this.task = "";
     }
     public Vertex(int id, float x, float y) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = 0;
+        this.task = "";
     }
     public Vertex(float x, float y, float z) {
         this.id = 0;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.task = "";
+    }
+    public Vertex(float x, float y, float z, String task) {
+        this.id = 0;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.task = task;
     }
     public Vertex(int id, float x, float y, float z) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
-    }
-    public Vertex(int id, float x, float y, float z, float[][] projMatrix) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.task = "";
     }
     
     @Override
@@ -74,6 +80,13 @@ public class Vertex {
     public void setZ(float z) {
         this.z = z;
     }
+    public String getTask() {
+        return task;
+    }
+    public void setTask(String task) {
+        this.task = task;
+    }
+    
     
     public void scaleToView() {
         this.x += 1f;
@@ -86,5 +99,12 @@ public class Vertex {
         this.x += x;
         this.y += y;
         this.z += z;
+    }
+    
+    public void normalize() {
+        float length = (float)Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
+        this.x /= length;
+        this.y /= length;
+        this.z /= length;
     }
 }
