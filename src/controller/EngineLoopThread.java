@@ -23,8 +23,7 @@ public class EngineLoopThread extends Thread {
     
     @Override
     public void run() {
-        System.out.println("Engine loop starts now!");
-        
+        //System.out.println("Engine loop starts now!");
         double lastCheckedTime = System.currentTimeMillis();
         
         while(this.controller.isLoopOn()) {
@@ -38,7 +37,7 @@ public class EngineLoopThread extends Thread {
                 //System.out.println("Frame!");
                 
                 if (EngineLoopThread.nFramesLoop >= EngineLoopThread.FPS) {
-                    System.out.println("Second!");
+                    //System.out.println("Second!");
                     EngineLoopThread.nFramesLoop = 0;
                 }
                 this.controller.loopFunction();

@@ -7,6 +7,7 @@ package controller;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import static java.util.Objects.isNull;
 import model.CameraModel;
 import model.EngineModel;
 import model.SceneObject;
@@ -30,6 +31,7 @@ public class EngineController implements KeyListener {
     private SceneObject scene;
     public static CameraModel camera;
     public static float fTheta;
+    public static Vertex lightDirection;
     
     public EngineController(EngineModel engine) {
         this.loopIsOn = false;
@@ -64,23 +66,48 @@ public class EngineController implements KeyListener {
     public void init() {
         // 1. CREATE THE SCENE OBJECT
         // read a scene file
-        this.fileController.openSceneFile();
-        this.scene = this.fileController.parseFileToScene();
+        //this.fileController.openSceneFile();
+        //this.scene = this.fileController.parseFileToScene();
         // update the engine vars with the new scene
-        this.engineView.updateTitle(this.scene.getTitle());
+        if (isNull(this.scene)) {
+            this.scene = new SceneObject();
+            this.scene.setSceneTitle(EngineModel.DEFAULT_SCENE_NAME);
+            this.engineView.updateTitle(this.scene.getTitle());
+        }
         
         // 2. CREATE THE CAMERA FOR THE SCENE
         EngineController.fTheta = 0.0f;
-        this.camera = new CameraModel(this);
-        this.camera.init();
+        EngineController.camera = new CameraModel(this);
+        EngineController.camera.init();
         
         // 3. MODIFY THE "TEST SCENE"
         // 3.1. Create the mesh in space
-        Mesh cube = this.createTestCube();
-        this.scene.addMesh(cube);
+        if (this.scene.getMeshList().isEmpty()) {
+            Mesh cube = this.createTestCube();
+            this.scene.addMesh(cube);
+        }
+        // 3.2. Create a light
+        EngineController.lightDirection = new Vertex(0.0f, 0.0f, -1.0f, "Light direction of the scene");
+        EngineController.lightDirection.normalize();
         
         // 4. ENGINE IS READY TO RENDER
         this.engineView.setVisible(true);
+    }
+    
+    public void stop() {
+        // 1. NULLIFY THE SCENE OBJECT
+        this.scene.deleteMeshes();
+        this.scene = null;
+        
+        // 2. NULLIFY CAMERA AND PLUS VARS
+        EngineController.fTheta = 0.0f;
+        EngineController.camera = null;
+        
+        // 3. NULLIFY LIGHTING
+        EngineController.lightDirection = null;
+        
+        // 4. HIDE
+        this.engineView.setVisible(false);
     }
     
     public void startLoop() {
@@ -157,21 +184,23 @@ public class EngineController implements KeyListener {
         //System.out.println("fTheta: " + EngineController.fTheta);
         
         //amoave las transformaciones __________________________
+        System.out.println(this.scene.getMeshList().size());
         this.scene.getMeshList().forEach((m) -> {
             
             // 0. RESET VPROCESS VALUES (for the next loop)
             m.initTrianglesVProcess();
            
             // 1. ROTATIONS
-            this.camera.updateRotationMatrixes();
+            EngineController.camera.updateRotationMatrixes();
             m.editRotateZFromVector("vlist");
-            m.editRotateXFromVector("vprocess");
+            //m.editRotateXFromVector("vprocess");
             
             // 2. TRANSLATING
-            m.editTranslate(0,0,3f, "vprocess");
+            m.editTranslate(0,0,40f, "vprocess");
             
-            // 2.5. GETTING TRIANGLES' NORMAL VECTORS
+            // 2.5. UPDATE TRIANGLES' NORMAL VECTORS + LIGHTING VALUES
             m.loadNormals();
+            m.loadLightingValues();
             
             // 3. PROJECTION
             m.calculateAllProjections();
@@ -192,10 +221,9 @@ public class EngineController implements KeyListener {
                 this.exitEngine();
                 break;
             
-            case KeyEvent.VK_H:     // HELP COMMAND
-                System.out.println("Coordinates ____________");
-                System.out.println("v0: " + this.scene.getFromMeshList(0).getTriangle(0).getVertex(0).toString());
-                System.out.println("v2: " + this.scene.getFromMeshList(0).getTriangle(0).getVertex(0).toString());
+            case KeyEvent.VK_O:     // OPEN OBJECT FILE
+                boolean res = this.fileController.openObjectFileChooser();
+                if (res) this.resetEngineAndScene();
                 break;
                 
             case KeyEvent.VK_W:
@@ -243,4 +271,26 @@ public class EngineController implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent ke) {}
+
+    
+    public void resetEngineAndScene() {
+        System.out.print("1. Pausing thread loop...");
+        this.loopIsOn = false;
+        this.mainLoop.interrupt();
+        this.mainLoop = null;
+        System.out.println(" done!");
+
+        System.out.print("2. Stopping current scene...");
+        this.stop();
+        System.out.println(" done!");
+
+        System.out.print("3. Reading object file...");
+        this.scene = this.fileController.readObjectFile();
+        System.out.println(" done!");
+
+        System.out.print("4. Resuming main loop...");
+        this.init();
+        this.startLoop();
+        System.out.println(" done!");
+    }
 }

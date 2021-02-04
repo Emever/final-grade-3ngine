@@ -9,7 +9,6 @@ import model.geometry.*;
  */
 public class SceneObject {
     private ArrayList<Mesh> meshList;
-    
     public String sceneTitle;
 
     public SceneObject() {
@@ -39,5 +38,13 @@ public class SceneObject {
     
     public void addMesh(Mesh newMesh) {
         this.meshList.add(newMesh);
+    }
+
+    public void deleteMeshes() {
+        for (Mesh m:this.meshList) {
+            m.delete();
+        }
+        this.meshList = null;
+        this.sceneTitle = "";
     }
 }

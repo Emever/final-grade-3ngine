@@ -15,6 +15,7 @@ public class Triangle {
     private Vertex[] vProcess;
     private Vertex[] vProjection;
     private Vertex vNormal;
+    private float lightingValue = 0;
     
     public Triangle() {
         this.id = 0;
@@ -30,6 +31,7 @@ public class Triangle {
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
         this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
+        this.lightingValue = 0;
     }
     public Triangle(Vertex v1, Vertex v2, Vertex v3) {
         this.id = 0;
@@ -47,6 +49,7 @@ public class Triangle {
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
         this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
+        this.lightingValue = 0;
     }
     public Triangle(int id, Vertex v1, Vertex v2, Vertex v3) {
         this.id = id;
@@ -64,6 +67,7 @@ public class Triangle {
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
         this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
+        this.lightingValue = 0;
     }
     public Triangle(int id, Vertex[] vs) {
         this.id = 0;
@@ -80,6 +84,7 @@ public class Triangle {
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
         this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
+        this.lightingValue = 0;
     }
     
     public int getId() {
@@ -94,13 +99,11 @@ public class Triangle {
     public Vertex getNormalVector() {
         return this.vNormal;
     }
-    public boolean isVisible() {
-        //boolean view = this.vNormal.getZ() < 0;
-        boolean view =
-            this.vNormal.getX() * (this.vProcess[0].getX() - EngineController.camera.getPos().getX()) +
-            this.vNormal.getY() * (this.vProcess[0].getY() - EngineController.camera.getPos().getY()) +
-            this.vNormal.getZ() * (this.vProcess[0].getZ() - EngineController.camera.getPos().getZ()) < 0;
-        return view;
+    public float getLightingValue() {
+        return lightingValue;
+    }
+    public void setLightingValue(float lightingValue) {
+        this.lightingValue = lightingValue;
     }
     public Vertex[] getvList() {
         return vList;
@@ -137,6 +140,17 @@ public class Triangle {
         return vProcess;
     }
     
+    
+    public boolean isVisible() {
+        //boolean view = this.vNormal.getZ() < 0;
+        boolean view =
+            this.vNormal.getX() * (this.vProcess[0].getX() - EngineController.camera.getPos().getX()) +
+            this.vNormal.getY() * (this.vProcess[0].getY() - EngineController.camera.getPos().getY()) +
+            this.vNormal.getZ() * (this.vProcess[0].getZ() - EngineController.camera.getPos().getZ()) < 0;
+        return view;
+    }
+    
+    
     // VPROCESS MANAGEMENT:
     public void initVProcess() {    // we initialize VProcess vertexes
         for (int i=0; i<3; i++) {
@@ -166,10 +180,6 @@ public class Triangle {
     public void scaleVertexToView() {
         for (int i=0; i<3; i++)
             this.vProjection[i].scaleToView();
-        /*System.out.println("After scaling ____________");
-        System.out.println(this.vProjection[0].toString());
-        System.out.println(this.vProjection[1].toString());
-        System.out.println(this.vProjection[2].toString());*/
     }
     
     
@@ -223,5 +233,19 @@ public class Triangle {
         else if (vFromUpdate.compareTo("vprojection") == 0)
             for (int i=0; i<3; i++)
                 UtilsMath.MultiplyMatrixVector(this.vProjection[i], this.vProcess[i], CameraModel.rotationMatrixX);
+    }
+
+    public void delete() {
+        for (Vertex v:this.vProjection)
+            v.delete();
+        for (Vertex v:this.vProcess)
+            v.delete();
+        for (Vertex v:this.vList)
+            v.delete();
+        this.lightingValue = 0;
+        this.vProjection = null;
+        this.vProcess = null;
+        this.vList = null;
+        this.id = 0;
     }
 }

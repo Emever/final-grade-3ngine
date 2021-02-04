@@ -47,6 +47,13 @@ public class Vertex {
         this.z = z;
         this.task = "";
     }
+    public Vertex(Vertex v0) {
+        this.id = v0.getId();
+        this.x = v0.getX();
+        this.y = v0.getY();
+        this.z = v0.getZ();
+        this.task = v0.getTask();
+    }
     
     @Override
     public String toString() {
@@ -106,5 +113,13 @@ public class Vertex {
         this.x /= length;
         this.y /= length;
         this.z /= length;
+    }
+
+    public void delete() {
+        this.id = 0;
+        this.task = "";
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
     }
 }

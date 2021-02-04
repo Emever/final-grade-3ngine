@@ -77,24 +77,38 @@ public class EngineView extends JComponent {
     
     public void drawTriangle(Triangle t) {
         // draw the triangles of every mesh into the screen
-        this.g2.setColor(Color.CYAN);
-        this.g2.drawLine(
+        this.g2.setColor(new Color(
+            t.getLightingValue(),
+            t.getLightingValue(),
+            t.getLightingValue())
+        );
+        this.g2.fillPolygon(
+            new int[] {
                 (int)t.getProjectionVertex(0).getX(),
+                (int)t.getProjectionVertex(1).getX(),
+                (int)t.getProjectionVertex(2).getX()
+            },
+            new int[] {
                 (int)t.getProjectionVertex(0).getY(),
-                (int)t.getProjectionVertex(1).getX(),
-                (int)t.getProjectionVertex(1).getY()
-            );
-        this.g2.drawLine(
-                (int)t.getProjectionVertex(1).getX(),
                 (int)t.getProjectionVertex(1).getY(),
-                (int)t.getProjectionVertex(2).getX(),
                 (int)t.getProjectionVertex(2).getY()
-            );
-        this.g2.drawLine(
-                (int)t.getProjectionVertex(2).getX(),
-                (int)t.getProjectionVertex(2).getY(),
+            },
+            3   // n vertexes
+        );
+        
+        this.g2.setColor(Color.GRAY);
+        this.g2.drawPolygon(
+            new int[] {
                 (int)t.getProjectionVertex(0).getX(),
-                (int)t.getProjectionVertex(0).getY()
-            );
+                (int)t.getProjectionVertex(1).getX(),
+                (int)t.getProjectionVertex(2).getX()
+            },
+            new int[] {
+                (int)t.getProjectionVertex(0).getY(),
+                (int)t.getProjectionVertex(1).getY(),
+                (int)t.getProjectionVertex(2).getY()
+            },
+            3   // n vertexes
+        );
     }
 }

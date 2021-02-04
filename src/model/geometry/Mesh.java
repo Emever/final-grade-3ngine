@@ -108,4 +108,32 @@ public class Mesh {
         for (Triangle t:this.tris)
             t.setVNormal(UtilsMath.GetNormalFromTriangle(t, null));
     }
+
+    public void loadLightingValues() {
+        float aux = 0;
+        for (Triangle t:this.tris) {
+            // we calculate the Dot Product of every T with the scene light
+            aux = UtilsMath.DotProduct(
+                new float[] {
+                    t.getNormalVector().getX(),
+                    t.getNormalVector().getY(),
+                    t.getNormalVector().getZ(),
+                },
+                new float[] {
+                    EngineController.lightDirection.getX(),
+                    EngineController.lightDirection.getY(),
+                    EngineController.lightDirection.getZ()
+                },
+                3);
+            aux = (aux + 1f) / 2f;   // so we restrict lighting value from 0 to 1.
+            t.setLightingValue(aux);
+        }
+    }
+
+    public void delete() {
+        for (Triangle t:this.tris) {
+            t.delete();
+        }
+        this.tris = null;
+    }
 }

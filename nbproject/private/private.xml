@@ -5,11 +5,9 @@
         <group>
             <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/model/geometry/Triangle.java</file>
             <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/controller/EngineLoopThread.java</file>
-            <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/pkg3ngine/Main.java</file>
             <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/controller/EngineController.java</file>
+            <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/model/CameraModel.java</file>
             <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/model/geometry/Vertex.java</file>
-            <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/view/EngineView.java</file>
-            <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/model/geometry/Mesh.java</file>
             <file>file:/C:/Users/Joel/OneDrive/Documentos/Universidad/TFG/BSP-3ngine/3ngine/src/utils/UtilsMath.java</file>
         </group>
     </open-files>
