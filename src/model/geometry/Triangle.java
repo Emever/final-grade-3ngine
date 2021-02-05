@@ -16,6 +16,7 @@ public class Triangle {
     private Vertex[] vProjection;
     private Vertex vNormal;
     private float lightingValue = 0;
+    private float depthValue;
     
     public Triangle() {
         this.id = 0;
@@ -86,6 +87,22 @@ public class Triangle {
         this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
         this.lightingValue = 0;
     }
+    public Triangle(Triangle source) {
+        this.id = source.getId();
+        this.lightingValue = source.getLightingValue();
+        this.depthValue = source.getDepthValue();
+        this.vNormal = new Vertex(source.getNormalVector());
+        this.vList = new Vertex[3];
+        for (int i=0; i<3; i++)
+            this.vList[i] = new Vertex(source.getVertex(i));
+        this.vProjection = new Vertex[3];
+        for (int i=0; i<3; i++)
+            this.vProjection[i] = new Vertex(source.getProjectionVertex(i));
+        this.vProcess = new Vertex[3];
+        for (int i=0; i<3; i++) {
+            this.vProcess[i] = new Vertex(source.getVProcess()[i]);
+        }
+    }
     
     public int getId() {
         return id;
@@ -139,6 +156,24 @@ public class Triangle {
     public Vertex[] getVProcess() {
         return vProcess;
     }
+    public Vertex[] getvProcess() {
+        return vProcess;
+    }
+    public void setvProcess(Vertex[] vProcess) {
+        this.vProcess = vProcess;
+    }
+    public Vertex getvNormal() {
+        return vNormal;
+    }
+    public void setvNormal(Vertex vNormal) {
+        this.vNormal = vNormal;
+    }
+    public float getDepthValue() {
+        return depthValue;
+    }
+    public void setDepthValue(float depthValue) {
+        this.depthValue = depthValue;
+    }
     
     
     public boolean isVisible() {
@@ -175,6 +210,12 @@ public class Triangle {
         for (int i=0; i<3; i++) {
             UtilsMath.MultiplyMatrixVector(v[i], this.vProjection[i], CameraModel.projectionMatrix);
         }
+    }
+    public void calculateDepthValue() {
+        this.depthValue =
+                (this.vProcess[0].getZ() + 
+                this.vProcess[1].getZ() +
+                this.vProcess[2].getZ()) / 3;
     }
     
     public void scaleVertexToView() {

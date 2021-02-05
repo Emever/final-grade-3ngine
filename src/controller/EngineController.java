@@ -184,7 +184,6 @@ public class EngineController implements KeyListener {
         //System.out.println("fTheta: " + EngineController.fTheta);
         
         //amoave las transformaciones __________________________
-        System.out.println(this.scene.getMeshList().size());
         this.scene.getMeshList().forEach((m) -> {
             
             // 0. RESET VPROCESS VALUES (for the next loop)
@@ -193,18 +192,21 @@ public class EngineController implements KeyListener {
             // 1. ROTATIONS
             EngineController.camera.updateRotationMatrixes();
             m.editRotateZFromVector("vlist");
-            //m.editRotateXFromVector("vprocess");
+            m.editRotateXFromVector("vprocess");
             
             // 2. TRANSLATING
-            m.editTranslate(0,0,40f, "vprocess");
+            m.editTranslate(0,0,8f, "vprocess");
             
             // 2.5. UPDATE TRIANGLES' NORMAL VECTORS + LIGHTING VALUES
+            m.loadDepthValues();
+            m.sortTrianglesInDepth();    // rendering with: Painter's Algorythm
             m.loadNormals();
             m.loadLightingValues();
             
             // 3. PROJECTION
             m.calculateAllProjections();
             
+            // 4. ADD TO RASTER (TO SORT THEM)
         });
         
         // F. REPAINT

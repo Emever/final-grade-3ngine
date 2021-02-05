@@ -64,7 +64,7 @@ public class EngineView extends JComponent {
         //Show the frames ratio
         this.g2.setColor(Color.YELLOW);
         this.g2.setFont(new Font("Serif", Font.PLAIN, 12));
-        this.g2.drawString(EngineLoopThread.nFramesLoop+" fps", 10, 10);
+        this.g2.drawString(EngineLoopThread.nFramesLoop+" fps", 10, 20);
         
         // we draw all the triangles from every mesh of the scene
         //System.out.print("Drawing meshes...");
@@ -95,8 +95,8 @@ public class EngineView extends JComponent {
             },
             3   // n vertexes
         );
-        
-        this.g2.setColor(Color.GRAY);
+        /*
+        this.g2.setColor(Color.CYAN);
         this.g2.drawPolygon(
             new int[] {
                 (int)t.getProjectionVertex(0).getX(),
@@ -109,6 +109,6 @@ public class EngineView extends JComponent {
                 (int)t.getProjectionVertex(2).getY()
             },
             3   // n vertexes
-        );
+        );*/
     }
 }

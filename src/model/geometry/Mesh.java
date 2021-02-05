@@ -130,6 +130,27 @@ public class Mesh {
         }
     }
 
+    public void loadDepthValues() {
+        for (Triangle t:this.tris)
+            t.calculateDepthValue();
+    }
+    
+    public void sortTrianglesInDepth() {
+        int loop = 0;
+        while (loop < this.tris.size()-1) {
+            for (int j=0; j<this.tris.size()-1; j++) {
+                if (this.tris.get(j).getDepthValue() < this.tris.get(j+1).getDepthValue())
+                {
+                    Triangle aux = new Triangle(this.tris.get(j));
+                    this.tris.set(j, this.tris.get(j+1));
+                    this.tris.set(j+1, aux);
+                }
+            }
+            loop++;
+        }
+    }
+    
+    
     public void delete() {
         for (Triangle t:this.tris) {
             t.delete();
