@@ -82,26 +82,10 @@ public class Mesh {
         for (Triangle t:this.tris)
             t.editTranslate(x,y,z);
     }
-    public void editTranslate(float x, float y, float z, String vertexToUpdate) {
-        for (Triangle t:this.tris)
-            t.editTranslate(x,y,z,vertexToUpdate);
-    }
     // ROTATING MESH
-    public void editRotateZ() {
+    public void editRotate(String axis) {
         for (Triangle t:this.tris)
-            t.editRotateZ();
-    }
-    public void editRotateX() {
-        for (Triangle t:this.tris)
-            t.editRotateX();
-    }
-    public void editRotateZFromVector(String vFromUpdate) {
-        for (Triangle t:this.tris)
-            t.editRotateZFromVector(vFromUpdate);
-    }
-    public void editRotateXFromVector(String vFromUpdate) {
-        for (Triangle t:this.tris)
-            t.editRotateXFromVector(vFromUpdate);
+            t.editRotate(axis);
     }
     
     public void loadNormals() {
@@ -113,18 +97,7 @@ public class Mesh {
         float aux = 0;
         for (Triangle t:this.tris) {
             // we calculate the Dot Product of every T with the scene light
-            aux = UtilsMath.DotProduct(
-                new float[] {
-                    t.getNormalVector().getX(),
-                    t.getNormalVector().getY(),
-                    t.getNormalVector().getZ(),
-                },
-                new float[] {
-                    EngineController.lightDirection.getX(),
-                    EngineController.lightDirection.getY(),
-                    EngineController.lightDirection.getZ()
-                },
-                3);
+            aux = UtilsMath.DotProduct(t.getNormalVector(), EngineController.lightDirection);
             aux = (aux + 1f) / 2f;   // so we restrict lighting value from 0 to 1.
             t.setLightingValue(aux);
         }

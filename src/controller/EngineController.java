@@ -190,12 +190,18 @@ public class EngineController implements KeyListener {
             m.initTrianglesVProcess();
            
             // 1. ROTATIONS
-            EngineController.camera.updateRotationMatrixes();
-            m.editRotateZFromVector("vlist");
-            m.editRotateXFromVector("vprocess");
+            EngineController.camera.updateRotationMatrixes(
+                    EngineController.fTheta,    // x axis angle
+                    EngineController.fTheta/2,    // y axis angle
+                    EngineController.fTheta/2     // z axis angle
+                );
+            m.editRotate("z");
+            m.editRotate("x");
+            //m.editRotate("y");
+            
             
             // 2. TRANSLATING
-            m.editTranslate(0,0,8f, "vprocess");
+            m.editTranslate(0,0,8f);
             
             // 2.5. UPDATE TRIANGLES' NORMAL VECTORS + LIGHTING VALUES
             m.loadDepthValues();
@@ -205,8 +211,6 @@ public class EngineController implements KeyListener {
             
             // 3. PROJECTION
             m.calculateAllProjections();
-            
-            // 4. ADD TO RASTER (TO SORT THEM)
         });
         
         // F. REPAINT

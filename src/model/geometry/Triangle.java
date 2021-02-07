@@ -230,50 +230,23 @@ public class Triangle {
         this.vProcess[1].translate(x,y,z);
         this.vProcess[2].translate(x,y,z);
     }
-    public void editTranslate(float x, float y, float z, String vToUpdate) {
-        if (vToUpdate.compareTo("vprocess") == 0) {
-            this.vProcess[0].translate(x,y,z);
-            this.vProcess[1].translate(x,y,z);
-            this.vProcess[2].translate(x,y,z);
-        } else if (vToUpdate.compareTo("vlist") == 0) {
-            this.vList[0].translate(x,y,z);
-            this.vList[1].translate(x,y,z);
-            this.vList[2].translate(x,y,z);
-        } else if (vToUpdate.compareTo("vprojection") == 0) {
-            this.vProjection[0].translate(x,y,z);
-            this.vProjection[1].translate(x,y,z);
-            this.vProjection[2].translate(x,y,z);
+    public void editRotate(String axis) {
+        axis = axis.toUpperCase();
+
+        switch(axis) {
+            case "X":
+                for (int i=0; i<3; i++)
+                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixX);
+                break;
+            case "Y":
+                for (int i=0; i<3; i++)
+                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixY);
+                break;
+            case "Z":
+                for (int i=0; i<3; i++)
+                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixZ);
+                break;
         }
-    }
-    public void editRotateZ() {
-        for (int i=0; i<3; i++)
-            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixZ);
-    }
-    public void editRotateX() {
-        for (int i=0; i<3; i++)
-            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixX);
-    }
-    public void editRotateZFromVector(String vFromUpdate) {
-        if (vFromUpdate.compareTo("vprocess") == 0)
-            for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixZ);
-        else if (vFromUpdate.compareTo("vlist") == 0)
-            for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vList[i], this.vProcess[i], CameraModel.rotationMatrixZ);
-        else if (vFromUpdate.compareTo("vprojection") == 0)
-            for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vProjection[i], this.vProcess[i], CameraModel.rotationMatrixZ);
-    }
-    public void editRotateXFromVector(String vFromUpdate) {
-        if (vFromUpdate.compareTo("vprocess") == 0)
-            for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixX);
-        else if (vFromUpdate.compareTo("vlist") == 0)
-            for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vList[i], this.vProcess[i], CameraModel.rotationMatrixX);
-        else if (vFromUpdate.compareTo("vprojection") == 0)
-            for (int i=0; i<3; i++)
-                UtilsMath.MultiplyMatrixVector(this.vProjection[i], this.vProcess[i], CameraModel.rotationMatrixX);
     }
 
     public void delete() {

@@ -155,7 +155,6 @@ public class FileController {
         SceneObject scene = null;
         
         try {
-            System.out.println("Here we should load our object.");
             BufferedReader file = new BufferedReader(new FileReader(this.sceneFile));
 
             
@@ -176,7 +175,7 @@ public class FileController {
                 
                 segments = line.split(" ");
                 if (isNull(line) || segments[0].equals("#")) {
-                    System.out.println("Comment read.");
+                    //System.out.println("Comment read.");
                 }
                 else if (segments[0].equals("o")) {
                     sceneTitle = segments[1];
@@ -230,7 +229,7 @@ public class FileController {
                     
                 }
                 else {
-                    System.out.println("Command unknown.");
+                    //System.out.println("Command unknown.");
                 }
                 
                 line = file.readLine();

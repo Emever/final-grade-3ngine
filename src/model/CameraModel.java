@@ -17,7 +17,7 @@ public class CameraModel {
     
     //public static float fTheta;
     public static float[][] projectionMatrix;
-    public static float[][] rotationMatrixX, rotationMatrixZ;
+    public static float[][] rotationMatrixX, rotationMatrixZ, rotationMatrixY;
     
     public CameraModel(EngineController controller) {
         this.engine = controller;
@@ -34,8 +34,9 @@ public class CameraModel {
     
     public void init() {
         this.createProjectionMatrix();
-        this.createRotationMatrixX();
-        this.createRotationMatrixZ();
+        this.createRotationMatrixX(EngineController.fTheta);
+        this.createRotationMatrixY(EngineController.fTheta);
+        this.createRotationMatrixZ(EngineController.fTheta);
     }
     
     public void createProjectionMatrix() {
@@ -47,45 +48,82 @@ public class CameraModel {
         float fAspectRatio = (float)EngineModel.dimY / (float)EngineModel.dimX;
         float fFOVRad = 1.0f / (float)Math.tan(fFOV*.5f);    // in radians
         
-        float[][] matProj = {
+        CameraModel.projectionMatrix = new float[][]
+        {
             {fAspectRatio * fFOVRad,    0,  0,  0},
             {0, fFOVRad,    0,  0},
             {0, 0,  fQ,     1.0f},
             {0, 0,  -fNear * fQ,  0}
         };
-        CameraModel.projectionMatrix = matProj;
     }
     
-    public void createRotationMatrixZ() {
-        float[][] rotZ = {
-            {(float)Math.cos(EngineController.fTheta), (float)Math.sin(EngineController.fTheta), 0, 0},
-            {(float)-Math.sin(EngineController.fTheta), (float)Math.cos(EngineController.fTheta), 0, 0},
+    public void createRotationMatrixX(float theta) {
+        CameraModel.rotationMatrixX = new float[][]
+        {
+            {1, 0, 0, 0},
+            {0, (float)Math.cos(theta), (float)Math.sin(theta), 0},
+            {0, -(float)Math.sin(theta), (float)Math.cos(theta), 0},
+            {0, 0, 0, 1}
+        };
+    }
+    public void createRotationMatrixY(float theta) {
+        CameraModel.rotationMatrixY = new float[][]
+        {
+            {(float)Math.cos(theta), 0, (float)Math.sin(theta), 0},
+            {0, 1, 0, 0},
+            {(float)-Math.sin(theta), 0, (float)Math.cos(theta), 0},
+            {0, 0, 0, 1}
+        };
+    }
+    public void createRotationMatrixZ(float theta) {
+        CameraModel.rotationMatrixZ = new float[][]
+        {
+            {(float)Math.cos(theta), (float)Math.sin(theta), 0, 0},
+            {(float)-Math.sin(theta), (float)Math.cos(theta), 0, 0},
             {0, 0, 1, 0},
             {0, 0, 0, 1}
         };
-        CameraModel.rotationMatrixZ = rotZ;
     }
     
-    public void createRotationMatrixX() {
-        float[][] rotX = {
-            {1, 0, 0, 0},
-            {0, (float)Math.cos(EngineController.fTheta/2), (float)Math.sin(EngineController.fTheta/2), 0},
-            {0, -(float)Math.sin(EngineController.fTheta/2), (float)Math.cos(EngineController.fTheta/2), 0},
-            {0, 0, 0, 1}
-        };
-        CameraModel.rotationMatrixX = rotX;
-    }
-    
-    public void updateRotationMatrixes() {
+    public void updateRotationMatrixes(float rotX, float rotY, float rotZ) {
         // Z Rotation Matrix
-        CameraModel.rotationMatrixZ[0][0] = (float)Math.cos(EngineController.fTheta);
-        CameraModel.rotationMatrixZ[1][1] = (float)Math.cos(EngineController.fTheta);
-        CameraModel.rotationMatrixZ[0][1] = (float)Math.sin(EngineController.fTheta);
-        CameraModel.rotationMatrixZ[1][0] = -(float)Math.sin(EngineController.fTheta);
+        CameraModel.rotationMatrixZ[0][0] = (float)Math.cos(rotZ);
+        CameraModel.rotationMatrixZ[1][1] = (float)Math.cos(rotZ);
+        CameraModel.rotationMatrixZ[0][1] = (float)Math.sin(rotZ);
+        CameraModel.rotationMatrixZ[1][0] = -(float)Math.sin(rotZ);
         // X Rotation Matrix
-        CameraModel.rotationMatrixX[1][1] = (float)Math.cos(EngineController.fTheta/2);
-        CameraModel.rotationMatrixX[2][2] = (float)Math.cos(EngineController.fTheta/2);
-        CameraModel.rotationMatrixX[1][2] = (float)Math.sin(EngineController.fTheta/2);
-        CameraModel.rotationMatrixX[2][1] = -(float)Math.sin(EngineController.fTheta/2);
+        CameraModel.rotationMatrixX[1][1] = (float)Math.cos(rotX);
+        CameraModel.rotationMatrixX[2][2] = (float)Math.cos(rotX);
+        CameraModel.rotationMatrixX[1][2] = (float)Math.sin(rotX);
+        CameraModel.rotationMatrixX[2][1] = -(float)Math.sin(rotX);
+        // Y Rotation Matrix
+        CameraModel.rotationMatrixY[0][0] = (float)Math.cos(rotY);
+        CameraModel.rotationMatrixY[2][2] = (float)Math.cos(rotY);
+        CameraModel.rotationMatrixY[2][0] = (float)Math.sin(rotY);
+        CameraModel.rotationMatrixY[0][2] = -(float)Math.sin(rotY);
+    }
+    
+    public void updateRotationMatrix(String matrix, float rot) {
+        matrix = matrix.toUpperCase();
+        switch(matrix) {
+            case "X":
+                CameraModel.rotationMatrixX[1][1] = (float)Math.cos(rot);
+                CameraModel.rotationMatrixX[2][2] = (float)Math.cos(rot);
+                CameraModel.rotationMatrixX[1][2] = (float)Math.sin(rot);
+                CameraModel.rotationMatrixX[2][1] = -(float)Math.sin(rot);
+                break;
+            case "Y":
+                CameraModel.rotationMatrixX[0][0] = (float)Math.cos(rot);
+                CameraModel.rotationMatrixX[2][2] = (float)Math.cos(rot);
+                CameraModel.rotationMatrixX[2][0] = (float)Math.sin(rot);
+                CameraModel.rotationMatrixX[0][2] = -(float)Math.sin(rot);
+                break;
+            case "Z":
+                CameraModel.rotationMatrixZ[0][0] = (float)Math.cos(rot);
+                CameraModel.rotationMatrixZ[1][1] = (float)Math.cos(rot);
+                CameraModel.rotationMatrixZ[0][1] = (float)Math.sin(rot);
+                CameraModel.rotationMatrixZ[1][0] = -(float)Math.sin(rot);
+                break;
+        }
     }
 }
