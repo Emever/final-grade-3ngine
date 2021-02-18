@@ -77,7 +77,7 @@ public class EngineController implements KeyListener {
         
         // 2. CREATE THE CAMERA FOR THE SCENE
         EngineController.fTheta = 0.0f;
-        EngineController.camera = new CameraModel(this);
+        EngineController.camera = new CameraModel(this, new float[] {90.0f, .1f, 1000.0f});
         EngineController.camera.init();
         
         // 3. MODIFY THE "TEST SCENE"

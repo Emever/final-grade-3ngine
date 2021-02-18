@@ -90,7 +90,7 @@ public class Mesh {
     
     public void loadNormals() {
         for (Triangle t:this.tris)
-            t.setVNormal(UtilsMath.GetNormalFromTriangle(t, null));
+            t.calculateVNormal();
     }
 
     public void loadLightingValues() {

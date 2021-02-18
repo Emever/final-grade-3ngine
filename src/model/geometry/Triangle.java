@@ -31,7 +31,7 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
-        this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
+        this.calculateVNormal();
         this.lightingValue = 0;
     }
     public Triangle(Vertex v1, Vertex v2, Vertex v3) {
@@ -49,7 +49,7 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
-        this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
+        this.calculateVNormal();
         this.lightingValue = 0;
     }
     public Triangle(int id, Vertex v1, Vertex v2, Vertex v3) {
@@ -67,7 +67,7 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
-        this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
+        this.calculateVNormal();
         this.lightingValue = 0;
     }
     public Triangle(int id, Vertex[] vs) {
@@ -84,7 +84,7 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
-        this.vNormal = UtilsMath.GetNormalFromTriangle(this, vNormal);
+        this.calculateVNormal();
         this.lightingValue = 0;
     }
     public Triangle(Triangle source) {
@@ -199,7 +199,6 @@ public class Triangle {
     }
     
     // PROJECTION METHODS
-    
     public void calculateTriangleProjection() {
         for (int i=0; i<3; i++) {
             UtilsMath.CopyVertexValues(this.vProcess[i], this.vProjection[i]);
@@ -217,7 +216,16 @@ public class Triangle {
                 this.vProcess[1].getZ() +
                 this.vProcess[2].getZ()) / 3;
     }
-    
+    public void calculateVNormal() {
+        // we need 2 vectors with the same origin vertex: (1)
+        Vertex v1 = UtilsMath.SubVertex(this.vProcess[1], this.vProcess[0]);
+        // we need 2 vectors with the same origin vertex: (2)
+        Vertex v2 = UtilsMath.SubVertex(this.vProcess[2], this.vProcess[0]);
+        // calculate normal vector
+        this.vNormal = UtilsMath.CrossProduct(v1, v2, this.vNormal);
+        // we normalize the vector
+        this.vNormal.normalize();
+    }
     public void scaleVertexToView() {
         for (int i=0; i<3; i++)
             this.vProjection[i].scaleToView();

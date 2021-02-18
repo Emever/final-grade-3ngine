@@ -108,6 +108,12 @@ public class Vertex {
         this.z += z;
     }
     
+    public void scale(float m) {
+        this.x *= m;
+        this.y *= m;
+        this.z *= m;
+    }
+    
     public void normalize() {
         float length = (float)Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
         this.x /= length;

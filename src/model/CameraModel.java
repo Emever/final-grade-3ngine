@@ -14,6 +14,7 @@ public class CameraModel {
     private EngineController engine;
     
     public Vertex pos;
+    public float fNear, fFar, fFOV, fAspectRatio;
     
     //public static float fTheta;
     public static float[][] projectionMatrix;
@@ -22,6 +23,17 @@ public class CameraModel {
     public CameraModel(EngineController controller) {
         this.engine = controller;
         this.pos = new Vertex(0,0,0, "Camera position");
+        
+        this.fAspectRatio = (float)EngineModel.dimY / (float)EngineModel.dimX;
+    }
+    public CameraModel(EngineController controller, float[] initValues) {
+        this.engine = controller;
+        this.pos = new Vertex(0,0,0, "Camera position");
+        this.fNear = initValues[1];
+        this.fFar = initValues[2];
+        this.fFOV = initValues[0];
+        
+        this.fAspectRatio = (float)EngineModel.dimY / (float)EngineModel.dimX;
     }
 
     public Vertex getPos() {
@@ -29,6 +41,24 @@ public class CameraModel {
     }
     public void setPos(Vertex pos) {
         this.pos = pos;
+    }
+    public float getfNear() {
+        return fNear;
+    }
+    public void setfNear(float fNear) {
+        this.fNear = fNear;
+    }
+    public float getfFar() {
+        return fFar;
+    }
+    public void setfFar(float fFar) {
+        this.fFar = fFar;
+    }
+    public float getfFOV() {
+        return fFOV;
+    }
+    public void setfFOV(float fFOV) {
+        this.fFOV = fFOV;
     }
     
     
@@ -41,20 +71,7 @@ public class CameraModel {
     
     public void createProjectionMatrix() {
         // create the projection matrix (it won't change whilst running)
-        float fNear = .1f;
-        float fFar = 1000.0f;
-        float fQ = fFar/(fFar-fNear);
-        float fFOV = UtilsMath.DegToRads(90f);   // direct value in radians
-        float fAspectRatio = (float)EngineModel.dimY / (float)EngineModel.dimX;
-        float fFOVRad = 1.0f / (float)Math.tan(fFOV*.5f);    // in radians
-        
-        CameraModel.projectionMatrix = new float[][]
-        {
-            {fAspectRatio * fFOVRad,    0,  0,  0},
-            {0, fFOVRad,    0,  0},
-            {0, 0,  fQ,     1.0f},
-            {0, 0,  -fNear * fQ,  0}
-        };
+        CameraModel.projectionMatrix = UtilsMath.getProjectionMatrix(fFOV, fAspectRatio, fNear, fFar);
     }
     
     public void createRotationMatrixX(float theta) {
