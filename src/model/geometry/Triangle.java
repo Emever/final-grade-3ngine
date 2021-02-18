@@ -178,10 +178,8 @@ public class Triangle {
     
     public boolean isVisible() {
         //boolean view = this.vNormal.getZ() < 0;
-        boolean view =
-            this.vNormal.getX() * (this.vProcess[0].getX() - EngineController.camera.getPos().getX()) +
-            this.vNormal.getY() * (this.vProcess[0].getY() - EngineController.camera.getPos().getY()) +
-            this.vNormal.getZ() * (this.vProcess[0].getZ() - EngineController.camera.getPos().getZ()) < 0;
+        Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
+        boolean view = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0;
         return view;
     }
     
@@ -203,6 +201,7 @@ public class Triangle {
         for (int i=0; i<3; i++) {
             UtilsMath.CopyVertexValues(this.vProcess[i], this.vProjection[i]);
             UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProjection[i], CameraModel.projectionMatrix);
+            UtilsMath.DivExistentVertex(this.vProjection[i], this.vProjection[i].getW());
         }
     }
     public void calculateTriangleProjection(Vertex[] v) {

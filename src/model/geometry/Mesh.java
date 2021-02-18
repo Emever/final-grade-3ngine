@@ -98,6 +98,7 @@ public class Mesh {
         for (Triangle t:this.tris) {
             // we calculate the Dot Product of every T with the scene light
             aux = UtilsMath.DotProduct(t.getNormalVector(), EngineController.lightDirection);
+            aux = Math.max(.1f, aux);
             aux = (aux + 1f) / 2f;   // so we restrict lighting value from 0 to 1.
             t.setLightingValue(aux);
         }

@@ -35,6 +35,7 @@ public class UtilsMath {
         vO.setX(vI.getX());
         vO.setY(vI.getY());
         vO.setZ(vI.getZ());
+        vO.setW(vI.getW());
     }
     public static Vertex AddVertex(Vertex v1, Vertex v2) {
         return new Vertex(
@@ -167,15 +168,9 @@ public class UtilsMath {
         // we have to duplicate our inputVector, in case vI equals vO, so
         // our vars doesnt update constatly whilst calculating the new vO.
         Vertex newInput = new Vertex(vI);
-        vO.setX(newInput.getX()*m[0][0] + newInput.getY()*m[1][0] + newInput.getZ()*m[2][0] + m[3][0]);
-        vO.setY(newInput.getX()*m[0][1] + newInput.getY()*m[1][1] + newInput.getZ()*m[2][1] + m[3][1]);
-        vO.setZ(newInput.getX()*m[0][2] + newInput.getY()*m[1][2] + newInput.getZ()*m[2][2] + m[3][2]);
-        float w = newInput.getX()*m[0][3] + newInput.getY()*m[1][3] + newInput.getZ()*m[2][3] + m[3][3];
-        
-        if (w != 0.0f) {
-            vO.setX(vO.getX() / w);
-            vO.setY(vO.getY() / w);
-            vO.setZ(vO.getZ() / w);
-        }
+        vO.setX(newInput.getX()*m[0][0] + newInput.getY()*m[1][0] + newInput.getZ()*m[2][0] + newInput.getW()*m[3][0]);
+        vO.setY(newInput.getX()*m[0][1] + newInput.getY()*m[1][1] + newInput.getZ()*m[2][1] + newInput.getW()*m[3][1]);
+        vO.setZ(newInput.getX()*m[0][2] + newInput.getY()*m[1][2] + newInput.getZ()*m[2][2] + newInput.getW()*m[3][2]);
+        vO.setW(newInput.getX()*m[0][2] + newInput.getY()*m[1][2] + newInput.getZ()*m[2][2] + newInput.getW()*m[3][2]);
     }
 }
