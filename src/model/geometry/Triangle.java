@@ -18,6 +18,8 @@ public class Triangle {
     private float lightingValue = 0;
     private float depthValue;
     
+    private boolean visible;
+    
     public Triangle() {
         this.id = 0;
         this.vList = new Vertex[3];
@@ -174,13 +176,18 @@ public class Triangle {
     public void setDepthValue(float depthValue) {
         this.depthValue = depthValue;
     }
-    
-    
     public boolean isVisible() {
+        return visible;
+    }
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+    
+    
+    public void checkIfVisible() {
         //boolean view = this.vNormal.getZ() < 0;
         Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
-        boolean view = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0;
-        return view;
+        this.visible = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0;
     }
     
     
@@ -237,21 +244,21 @@ public class Triangle {
         this.vProcess[1].translate(x,y,z);
         this.vProcess[2].translate(x,y,z);
     }
-    public void editRotate(String axis) {
+    public void editRotate(String axis, float[][] matrix) {
         axis = axis.toUpperCase();
 
         switch(axis) {
             case "X":
                 for (int i=0; i<3; i++)
-                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixX);
+                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], matrix);
                 break;
             case "Y":
                 for (int i=0; i<3; i++)
-                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixY);
+                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], matrix);
                 break;
             case "Z":
                 for (int i=0; i<3; i++)
-                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], CameraModel.rotationMatrixZ);
+                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], matrix);
                 break;
         }
     }
@@ -268,5 +275,17 @@ public class Triangle {
         this.vProcess = null;
         this.vList = null;
         this.id = 0;
+    }
+
+    public void calculateVertexTransformation(float[][] matrix) {
+       for (int i=0; i<3; i++)
+           UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], matrix);
+    }
+    
+    public void calculateLightingValue() {
+        // we calculate the Dot Product of every T with the scene light
+        this.lightingValue = UtilsMath.DotProduct(this.vNormal, EngineController.lightDirection);
+        this.lightingValue = Math.max(.1f, this.lightingValue);
+        this.lightingValue = (this.lightingValue + 1f) / 2f;   // so we restrict lighting value from 0 to 1.
     }
 }

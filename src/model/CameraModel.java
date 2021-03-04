@@ -75,31 +75,13 @@ public class CameraModel {
     }
     
     public void createRotationMatrixX(float theta) {
-        CameraModel.rotationMatrixX = new float[][]
-        {
-            {1, 0, 0, 0},
-            {0, (float)Math.cos(theta), (float)Math.sin(theta), 0},
-            {0, -(float)Math.sin(theta), (float)Math.cos(theta), 0},
-            {0, 0, 0, 1}
-        };
+        CameraModel.rotationMatrixX = UtilsMath.getRotationMatrix_X(theta);
     }
     public void createRotationMatrixY(float theta) {
-        CameraModel.rotationMatrixY = new float[][]
-        {
-            {(float)Math.cos(theta), 0, (float)Math.sin(theta), 0},
-            {0, 1, 0, 0},
-            {(float)-Math.sin(theta), 0, (float)Math.cos(theta), 0},
-            {0, 0, 0, 1}
-        };
+        CameraModel.rotationMatrixY = UtilsMath.getRotationMatrix_Y(theta);
     }
     public void createRotationMatrixZ(float theta) {
-        CameraModel.rotationMatrixZ = new float[][]
-        {
-            {(float)Math.cos(theta), (float)Math.sin(theta), 0, 0},
-            {(float)-Math.sin(theta), (float)Math.cos(theta), 0, 0},
-            {0, 0, 1, 0},
-            {0, 0, 0, 1}
-        };
+        CameraModel.rotationMatrixZ = UtilsMath.getRotationMatrix_Z(theta);
     }
     
     public void updateRotationMatrixes(float rotX, float rotY, float rotZ) {

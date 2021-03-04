@@ -149,12 +149,24 @@ public class EngineController implements KeyListener {
     
     public void loopFunction() {
         
-        EngineController.fTheta += 1f*(float)EngineLoopThread.elapsedTime/1000;
+        //EngineController.fTheta += 1f*(float)EngineLoopThread.elapsedTime/1000;
         //System.out.println("Elapsed time: " + EngineLoopThread.elapsedTime);
         //System.out.println("fTheta: " + EngineController.fTheta);
         
         //amoave las transformaciones __________________________
-        this.scene.getMeshList().forEach((m) -> {
+        float[][] matRotZ, matRotX; //rotation matrix
+        matRotZ = UtilsMath.getRotationMatrix_Z(EngineController.fTheta);
+        matRotX = UtilsMath.getRotationMatrix_X(EngineController.fTheta*.5f);
+        float[][] matTrans; //translation matrix
+        matTrans = UtilsMath.getTranslationMatrix(0.0f, 0.0f, 8.0f);
+        
+        float[][] matWorld = UtilsMath.getIdentityMatrix();
+        // 0.1. We rotate with the matrix
+        matWorld = UtilsMath.MultiplyMatrixMatrix(matRotZ, matRotX);
+        // 0.2. We translate with the matrix
+        matWorld = UtilsMath.MultiplyMatrixMatrix(matWorld, matTrans);
+                
+        for (Mesh m:this.scene.getMeshList()) {
             
             // 0. RESET VPROCESS VALUES (for the next loop)
             m.initTrianglesVProcess();
@@ -165,23 +177,31 @@ public class EngineController implements KeyListener {
                     EngineController.fTheta/2,    // y axis angle
                     EngineController.fTheta/2     // z axis angle
                 );
-            m.editRotate("z");
-            m.editRotate("x");
-            //m.editRotate("y");
-            
+            //m.editRotate("z", CameraModel.rotationMatrixZ);
+            //m.editRotate("x");
+            //m.editRotate("y", CameraModel.rotationMatrixY);
             
             // 2. TRANSLATING
-            m.editTranslate(0,0,8f);
+            //m.editTranslate(0,0,8f);
+            
+            m.loadTransformations(matWorld);
+            
+            
             
             // 2.5. UPDATE TRIANGLES' NORMAL VECTORS + LIGHTING VALUES
             m.loadDepthValues();
             m.sortTrianglesInDepth();    // rendering with: Painter's Algorythm
             m.loadNormals();
-            m.loadLightingValues();
+            for (Triangle t:m.getTris()) {
+                t.checkIfVisible();
+                if (t.isVisible())
+                    t.calculateLightingValue();
+            }
+            
             
             // 3. PROJECTION
             m.calculateAllProjections();
-        });
+        }
         
         // F. REPAINT
         this.engineView.repaint();

@@ -7,7 +7,7 @@ package controller;
 public class EngineLoopThread extends Thread {
     private EngineController controller;
     
-    public static final int FPS = 60;
+    public static final int FPS = 30;
     public static final int TPFmillis = 1000/FPS;
     
     public static double elapsedTime;

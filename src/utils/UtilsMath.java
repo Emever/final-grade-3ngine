@@ -105,6 +105,15 @@ public class UtilsMath {
     
     /* COMMON MATRIX OPERATIONS _____________________________________________ */
     
+    public static float[][] getIdentityMatrix() {
+        return new float[][] {
+            {1.0f,0,0,0},
+            {0,1.0f,0,0},
+            {0,0,1.0f,0},
+            {0,0,0,1.0f}
+        };
+    }
+    
     public static float[][] getProjectionMatrix(float fFovDegrees, float aspectRatio, float fNear, float fFar) {
         float fFOVRad = UtilsMath.DegToRads(fFovDegrees);
         float FOVfactor = 1.0f / (float)Math.tan(fFOVRad*.5f);

@@ -72,8 +72,10 @@ public class Mesh {
     public void calculateAllProjections() {
         for (Triangle t:this.tris) {
             // aqui hay un calculo que está "un poco mal"
-            t.calculateTriangleProjection();
-            t.scaleVertexToView();
+            if (t.isVisible()) {
+                t.calculateTriangleProjection();
+                t.scaleVertexToView();
+            }
         }
     }
     
@@ -83,25 +85,14 @@ public class Mesh {
             t.editTranslate(x,y,z);
     }
     // ROTATING MESH
-    public void editRotate(String axis) {
+    public void editRotate(String axis, float[][] matrix) {
         for (Triangle t:this.tris)
-            t.editRotate(axis);
+            t.editRotate(axis, matrix);
     }
     
     public void loadNormals() {
         for (Triangle t:this.tris)
             t.calculateVNormal();
-    }
-
-    public void loadLightingValues() {
-        float aux = 0;
-        for (Triangle t:this.tris) {
-            // we calculate the Dot Product of every T with the scene light
-            aux = UtilsMath.DotProduct(t.getNormalVector(), EngineController.lightDirection);
-            aux = Math.max(.1f, aux);
-            aux = (aux + 1f) / 2f;   // so we restrict lighting value from 0 to 1.
-            t.setLightingValue(aux);
-        }
     }
 
     public void loadDepthValues() {
@@ -123,6 +114,21 @@ public class Mesh {
             loop++;
         }
     }
+
+    public void loadTransformations(float[][] matrix) {
+        for (Triangle t:this.tris) {
+            t.calculateVertexTransformation(matrix);
+        }
+    }
+    
+    public void loadLightingValues() {
+        for (Triangle t:this.tris) {
+            t.calculateLightingValue();
+        }
+    }
+    
+    
+    
     
     
     public void delete() {

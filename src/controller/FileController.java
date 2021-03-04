@@ -165,15 +165,16 @@ public class FileController {
             
             // grid width, height and spacing
             String line = file.readLine();
-            String[] segments = line.split(" ");
+            String[] segments;/* = line.split(" ");*/
 
             // nVertex and nVectors
-            line = file.readLine();
+            //line = file.readLine();
 
             // read every line
             while (line != null) {
                 
                 segments = line.split(" ");
+                
                 if (isNull(line) || segments[0].equals("#")) {
                     //System.out.println("Comment read.");
                 }
