@@ -13,7 +13,6 @@ public class Triangle {
     private int id;
     private Vertex[] vList;
     private Vertex[] vProcess;
-    private Vertex[] vProjection;
     private Vertex vNormal;
     private float lightingValue = 0;
     private float depthValue;
@@ -25,9 +24,6 @@ public class Triangle {
         this.vList = new Vertex[3];
         for (int i=0; i<3; i++)
             this.vList[i] = new Vertex();
-        this.vProjection = new Vertex[3];
-        for (int i=0; i<3; i++)
-            this.vProjection[i] = new Vertex();
         this.vProcess = new Vertex[3];
         for (int i=0; i<3; i++) {
             this.vProcess[i] = new Vertex();
@@ -43,9 +39,6 @@ public class Triangle {
         this.vList[1] = v2;
         this.vList[2] = v3;
         
-        this.vProjection = new Vertex[3];
-        for (int i=0; i<3; i++)
-            this.vProjection[i] = new Vertex();
         this.vProcess = new Vertex[3];
         for (int i=0; i<3; i++) {
             this.vProcess[i] = new Vertex();
@@ -61,9 +54,6 @@ public class Triangle {
         this.vList[1] = v2;
         this.vList[2] = v3;
         
-        this.vProjection = new Vertex[3];
-        for (int i=0; i<3; i++)
-            this.vProjection[i] = new Vertex();
         this.vProcess = new Vertex[3];
         for (int i=0; i<3; i++) {
             this.vProcess[i] = new Vertex();
@@ -78,9 +68,6 @@ public class Triangle {
         for (int i=0; i<3; i++)
             this.vList[i] = vs[i];
         
-        this.vProjection = new Vertex[3];
-        for (int i=0; i<3; i++)
-            this.vProjection[i] = new Vertex();
         this.vProcess = new Vertex[3];
         for (int i=0; i<3; i++) {
             this.vProcess[i] = new Vertex();
@@ -96,10 +83,7 @@ public class Triangle {
         this.vNormal = new Vertex(source.getNormalVector());
         this.vList = new Vertex[3];
         for (int i=0; i<3; i++)
-            this.vList[i] = new Vertex(source.getVertex(i));
-        this.vProjection = new Vertex[3];
-        for (int i=0; i<3; i++)
-            this.vProjection[i] = new Vertex(source.getProjectionVertex(i));
+            this.vList[i] = new Vertex(source.getVList(i));
         this.vProcess = new Vertex[3];
         for (int i=0; i<3; i++) {
             this.vProcess[i] = new Vertex(source.getVProcess()[i]);
@@ -124,45 +108,32 @@ public class Triangle {
     public void setLightingValue(float lightingValue) {
         this.lightingValue = lightingValue;
     }
-    public Vertex[] getvList() {
+    public Vertex[] getVList() {
         return vList;
     }
-    public void setvList(Vertex[] vList) {
+    public void setVList(Vertex[] vList) {
         this.vList = vList;
     }
-    public Vertex getVertex(int i) {
+    public Vertex getVList(int i) {
         if (i < 3 && i >= 0)
             return this.vList[i];
         System.out.println("Wrong requested index! (from triangle)");
         return null;
     }
-    public Vertex getProjectionVertex(int i) {
-        if (i < 3 && i >= 0)
-            return this.vProjection[i];
-        System.out.println("Wrong requested index! (from triangle)");
-        return null;
-    }
-    public boolean setVertex(int i, Vertex v) {
-        if (i < 3 && i >= 0) {
-            this.vList[i] = v;
-            return true;
-        }
-        return false;
-    }
-    public Vertex[] getvProjection() {
-        return vProjection;
-    }
-    public void setvProjection(Vertex[] vProjection) {
-        this.vProjection = vProjection;
+    public void setVList(Vertex newVertex, int index) {
+        this.vList[index] = newVertex;
     }
     public Vertex[] getVProcess() {
         return vProcess;
     }
-    public Vertex[] getvProcess() {
-        return vProcess;
+    public Vertex getVProcess(int i) {
+        return vProcess[i];
     }
     public void setvProcess(Vertex[] vProcess) {
         this.vProcess = vProcess;
+    }
+    public void setVProcess(Vertex newVertex, int index) {
+        this.vProcess[index] = newVertex;
     }
     public Vertex getvNormal() {
         return vNormal;
@@ -183,58 +154,43 @@ public class Triangle {
         this.visible = visible;
     }
     
-    
     public void checkIfVisible() {
         //boolean view = this.vNormal.getZ() < 0;
         Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
-        this.visible = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0;
+        this.visible = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0.0f;
     }
     
-    
-    // VPROCESS MANAGEMENT:
-    public void initVProcess() {    // we initialize VProcess vertexes
-        for (int i=0; i<3; i++) {
-            UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
-            UtilsMath.CopyVertexValues(this.vList[i], this.vProjection[i]);
-        }
-    }
-    public void updateVList() {
-        for (int i=0; i<3; i++)
-            UtilsMath.CopyVertexValues(this.vProcess[i], this.vList[i]);
-    }
-    
-    // PROJECTION METHODS
-    public void calculateTriangleProjection() {
-        for (int i=0; i<3; i++) {
-            UtilsMath.CopyVertexValues(this.vProcess[i], this.vProjection[i]);
-            UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProjection[i], CameraModel.projectionMatrix);
-            UtilsMath.DivExistentVertex(this.vProjection[i], this.vProjection[i].getW());
-        }
-    }
-    public void calculateTriangleProjection(Vertex[] v) {
-        for (int i=0; i<3; i++) {
-            UtilsMath.MultiplyMatrixVector(v[i], this.vProjection[i], CameraModel.projectionMatrix);
-        }
-    }
     public void calculateDepthValue() {
         this.depthValue =
                 (this.vProcess[0].getZ() + 
                 this.vProcess[1].getZ() +
                 this.vProcess[2].getZ()) / 3;
     }
+    
+    public void calculateDepthValueRegarding(String mode) {
+        mode = mode.toUpperCase();
+        switch (mode) {
+            default:
+                this.calculateDepthValue();
+                break;
+        }
+    }
+    
     public void calculateVNormal() {
         // we need 2 vectors with the same origin vertex: (1)
-        Vertex v1 = UtilsMath.SubVertex(this.vProcess[1], this.vProcess[0]);
+        Vertex vector1 = UtilsMath.SubVertex(this.vProcess[1], this.vProcess[0]);
         // we need 2 vectors with the same origin vertex: (2)
-        Vertex v2 = UtilsMath.SubVertex(this.vProcess[2], this.vProcess[0]);
+        Vertex vector2 = UtilsMath.SubVertex(this.vProcess[2], this.vProcess[0]);
         // calculate normal vector
-        this.vNormal = UtilsMath.CrossProduct(v1, v2, this.vNormal);
+        this.vNormal = UtilsMath.CrossProduct(vector1, vector2, null);
         // we normalize the vector
         this.vNormal.normalize();
+        
     }
+    
     public void scaleVertexToView() {
         for (int i=0; i<3; i++)
-            this.vProjection[i].scaleToView();
+            this.vProcess[i].scaleToView();
     }
     
     
@@ -244,6 +200,7 @@ public class Triangle {
         this.vProcess[1].translate(x,y,z);
         this.vProcess[2].translate(x,y,z);
     }
+    
     public void editRotate(String axis, float[][] matrix) {
         axis = axis.toUpperCase();
 
@@ -263,23 +220,12 @@ public class Triangle {
         }
     }
 
-    public void delete() {
-        for (Vertex v:this.vProjection)
-            v.delete();
-        for (Vertex v:this.vProcess)
-            v.delete();
-        for (Vertex v:this.vList)
-            v.delete();
-        this.lightingValue = 0;
-        this.vProjection = null;
-        this.vProcess = null;
-        this.vList = null;
-        this.id = 0;
-    }
-
     public void calculateVertexTransformation(float[][] matrix) {
-       for (int i=0; i<3; i++)
-           UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], matrix);
+       for (int i=0; i<3; i++) {
+           Vertex vAux = new Vertex();
+           UtilsMath.MultiplyMatrixVector(this.vProcess[i], vAux, matrix);
+           UtilsMath.CopyVertexValues(vAux, this.vProcess[i]);
+       }
     }
     
     public void calculateLightingValue() {
@@ -288,4 +234,20 @@ public class Triangle {
         this.lightingValue = Math.max(.1f, this.lightingValue);
         this.lightingValue = (this.lightingValue + 1f) / 2f;   // so we restrict lighting value from 0 to 1.
     }
+    
+    
+    
+    
+    
+    public void delete() {
+        for (Vertex v:this.vProcess)
+            v.delete();
+        for (Vertex v:this.vList)
+            v.delete();
+        this.lightingValue = 0;
+        this.vProcess = null;
+        this.vList = null;
+        this.id = 0;
+    }
+
 }

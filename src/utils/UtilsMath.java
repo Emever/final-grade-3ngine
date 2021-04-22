@@ -5,7 +5,9 @@
  */
 package utils;
 
+import controller.EngineController;
 import static java.util.Objects.isNull;
+import model.EngineModel;
 import model.geometry.*;
 
 /**
@@ -114,9 +116,17 @@ public class UtilsMath {
         };
     }
     
-    public static float[][] getProjectionMatrix(float fFovDegrees, float aspectRatio, float fNear, float fFar) {
-        float fFOVRad = UtilsMath.DegToRads(fFovDegrees);
+    public static float[][] getProjectionMatrix() {
+        float focalLength = .1f;
+        float vX = focalLength * (float)EngineModel.dimX / (2* ((float)EngineModel.dimX/10000));
+        float vY = focalLength * (float)EngineModel.dimY / (2* ((float)EngineModel.dimY/10000));
+        
+        /*
+        float fFOVRad = UtilsMath.DegToRads(90);
         float FOVfactor = 1.0f / (float)Math.tan(fFOVRad*.5f);
+        float fFar = 1000.0f;
+        float fNear = 0.1f;
+        float aspectRatio = EngineModel.dimX/EngineModel.dimY;
         float fQ = fFar/(fFar-fNear);
         return new float[][]
         {
@@ -125,22 +135,30 @@ public class UtilsMath {
             {0, 0,  fQ,     1.0f},
             {0, 0,  -fNear * fQ,  0}
         };
+        */
+        
+        return new float[][] {
+            {vX,    0.0f,   0.0f,   0.0f},
+            {0.0f,  vY,     0.0f,   0.0f},
+            {0.0f,  0.0f,   -1.0f,  0.0f},
+            {0.0f,  0.0f,   0.0f,   1.0f}
+        };
     }
     
     public static float[][] getTranslationMatrix(float x, float y, float z) {
         return new float[][] {
-            {1.0f,0,0,0},
-            {0,1.0f,0,0},
-            {0,0,1.0f,0},
-            {x,y,z,1.0f}
+            {1.0f,  0.0f,   0.0f,   -1.0f*x},
+            {0.0f,  1.0f,   0.0f,   -1.0f*y},
+            {0.0f,  0.0f,   1.0f,   -1.0f*z},
+            {0.0f,  0.0f,   0.0f,   1.0f}
         };
     }
     
     public static float[][] getRotationMatrix_X(float angle) {
         return new float[][] {
             {1.0f,0,0,0},
-            {0,(float)Math.cos(angle),(float)Math.sin(angle),0},
-            {0,-(float)Math.sin(angle),(float)Math.cos(angle),0},
+            {0,(float)Math.cos(angle),-(float)Math.sin(angle),0},
+            {0,(float)Math.sin(angle),(float)Math.cos(angle),0},
             {0,0,0,1.0f}
         };
     }
@@ -154,17 +172,54 @@ public class UtilsMath {
     }
     public static float[][] getRotationMatrix_Z(float angle) {
         return new float[][] {
-            {(float)Math.cos(angle),(float)Math.sin(angle),0,0},
-            {-(float)Math.sin(angle),(float)Math.cos(angle),0,0},
+            {(float)Math.cos(angle),-(float)Math.sin(angle),0,0},
+            {(float)Math.sin(angle),(float)Math.cos(angle),0,0},
             {0,0,1.0f,0},
             {0,0,0,1.0f}
         };
     }
     
-    public static float[][] MultiplyMatrixMatrix(float[][] m1, float[][] m2) {
-        float[][] mO = new float[][] {
-            {0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}
+    public static float[][] getMatrix_PointAt(Vertex vPos, Vertex vTarget, Vertex vUp) {
+        // create forward vector
+        Vertex vForward = UtilsMath.SubVertex(vTarget, vPos);
+        vForward.normalize();
+        
+        // create new up vector
+        Vertex a = UtilsMath.MulVertex(vForward, UtilsMath.DotProduct(vUp, vForward));
+        Vertex newVUp = UtilsMath.SubVertex(vUp, a);
+        newVUp.normalize();
+        
+        // we can now calculate the new right direction (vector)
+        Vertex newVRight = UtilsMath.CrossProduct(newVUp, vForward, null);
+        
+        return new float[][]
+        {
+            {newVRight.getX(),  newVRight.getY(),   newVRight.getZ(),   0.0f},
+            {newVUp.getX(),     newVUp.getY(),      newVUp.getZ(),      0.0f},
+            {vForward.getX(),   vForward.getY(),    vForward.getZ(),    0.0f},
+            {vPos.getX(),       vPos.getY(),        vPos.getZ(),        1.0f}
         };
+        
+    }
+    
+    public static float[][] MatrixQuickInverse(float[][] mat) {
+        float[][] newMat = new float[][]
+        {
+            {mat[0][0], mat[1][0], mat[2][0], 0.0f},
+            {mat[0][1], mat[1][1], mat[2][1], 0.0f},
+            {mat[0][2], mat[1][2], mat[2][2], 0.0f},
+            {0.0f, 0.0f, 0.0f, 1.0f}
+        };
+        newMat[3][0] = -(mat[3][0]*newMat[0][0] + mat[3][1]*newMat[1][0] + mat[3][2]*newMat[2][0]);
+        newMat[3][1] = -(mat[3][0]*newMat[0][1] + mat[3][1]*newMat[1][1] + mat[3][2]*newMat[2][1]);
+        newMat[3][2] = -(mat[3][0]*newMat[0][2] + mat[3][1]*newMat[1][2] + mat[3][2]*newMat[2][2]);
+        
+        return newMat;
+    }
+    
+    
+    public static float[][] MultiplyMatrixMatrix(float[][] m1, float[][] m2) {
+        float[][] mO = UtilsMath.getIdentityMatrix();
         
         for (int r=0; r<4; r++)
             for (int c=0; c<4; c++)
@@ -173,13 +228,18 @@ public class UtilsMath {
         return mO;
     }
     
-    public static void MultiplyMatrixVector(Vertex vI, Vertex vO, float[][] m) {
+    public static Vertex MultiplyMatrixVector(Vertex vI, Vertex vO, float[][] m) {
+        if (isNull(vO)) vO = new Vertex();
+        
         // we have to duplicate our inputVector, in case vI equals vO, so
         // our vars doesnt update constatly whilst calculating the new vO.
         Vertex newInput = new Vertex(vI);
-        vO.setX(newInput.getX()*m[0][0] + newInput.getY()*m[1][0] + newInput.getZ()*m[2][0] + newInput.getW()*m[3][0]);
-        vO.setY(newInput.getX()*m[0][1] + newInput.getY()*m[1][1] + newInput.getZ()*m[2][1] + newInput.getW()*m[3][1]);
-        vO.setZ(newInput.getX()*m[0][2] + newInput.getY()*m[1][2] + newInput.getZ()*m[2][2] + newInput.getW()*m[3][2]);
-        vO.setW(newInput.getX()*m[0][2] + newInput.getY()*m[1][2] + newInput.getZ()*m[2][2] + newInput.getW()*m[3][2]);
+        vO.setX(newInput.getX()*m[0][0] + newInput.getY()*m[0][1] + newInput.getZ()*m[0][2] + newInput.getW()*m[0][3]);
+        vO.setY(newInput.getX()*m[1][0] + newInput.getY()*m[1][1] + newInput.getZ()*m[1][2] + newInput.getW()*m[1][3]);
+        vO.setZ(newInput.getX()*m[2][0] + newInput.getY()*m[2][1] + newInput.getZ()*m[2][2] + newInput.getW()*m[2][3]);
+        vO.setW(newInput.getX()*m[3][0] + newInput.getY()*m[3][1] + newInput.getZ()*m[3][2] + newInput.getW()*m[3][3]);
+        
+        return vO;
     }
+    
 }

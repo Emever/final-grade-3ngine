@@ -238,7 +238,7 @@ public class FileController {
             
             scene = new SceneObject();
             scene.setSceneTitle(sceneTitle);
-            Mesh m = new Mesh("test");
+            Mesh m = new Mesh("test", null);
             m.setTris(tList);
             scene.addMesh(m);
             

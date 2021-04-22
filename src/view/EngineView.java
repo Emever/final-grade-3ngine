@@ -66,17 +66,23 @@ public class EngineView extends JComponent {
         this.g2.setFont(new Font("Serif", Font.PLAIN, 12));
         this.g2.drawString(EngineLoopThread.nFramesLoop+" fps", 10, 20);
         
+        //Show the elapsed time
+        this.g2.setColor(Color.CYAN);
+        this.g2.setFont(new Font("Serif", Font.PLAIN, 12));
+        this.g2.drawString((int)EngineLoopThread.elapsedTime+" ms", 10, 36);
+        
         // we draw all the triangles from every mesh of the scene
         //System.out.print("Drawing meshes...");
         for (Mesh m:this.engineController.getScene().getMeshList())
             for (Triangle t:m.getTris()) // -> every triangle from every mesh
-                if (t.isVisible()) this.drawTriangle(t);
+                /*if (t.isVisible()) */this.drawTriangle(t);
         
         //System.out.println(" done!");
     }
     
     public void drawTriangle(Triangle t) {
         // draw the triangles of every mesh into the screen
+        /*
         this.g2.setColor(new Color(
             t.getLightingValue(),
             t.getLightingValue(),
@@ -84,31 +90,31 @@ public class EngineView extends JComponent {
         );
         this.g2.fillPolygon(
             new int[] {
-                (int)t.getProjectionVertex(0).getX(),
-                (int)t.getProjectionVertex(1).getX(),
-                (int)t.getProjectionVertex(2).getX()
+                (int)t.getVProcess(0).getX(),
+                (int)t.getVProcess(1).getX(),
+                (int)t.getVProcess(2).getX()
             },
             new int[] {
-                (int)t.getProjectionVertex(0).getY(),
-                (int)t.getProjectionVertex(1).getY(),
-                (int)t.getProjectionVertex(2).getY()
-            },
-            3   // n vertexes
-        );
-        /*
-        this.g2.setColor(Color.CYAN);
-        this.g2.drawPolygon(
-            new int[] {
-                (int)t.getProjectionVertex(0).getX(),
-                (int)t.getProjectionVertex(1).getX(),
-                (int)t.getProjectionVertex(2).getX()
-            },
-            new int[] {
-                (int)t.getProjectionVertex(0).getY(),
-                (int)t.getProjectionVertex(1).getY(),
-                (int)t.getProjectionVertex(2).getY()
+                (int)t.getVProcess(0).getY(),
+                (int)t.getVProcess(1).getY(),
+                (int)t.getVProcess(2).getY()
             },
             3   // n vertexes
         );*/
+        
+        this.g2.setColor(Color.CYAN);
+        this.g2.drawPolygon(
+            new int[] {
+                (int)t.getVProcess(0).getX(),
+                (int)t.getVProcess(1).getX(),
+                (int)t.getVProcess(2).getX()
+            },
+            new int[] {
+                (int)t.getVProcess(0).getY(),
+                (int)t.getVProcess(1).getY(),
+                (int)t.getVProcess(2).getY()
+            },
+            3   // n vertexes
+        );
     }
 }

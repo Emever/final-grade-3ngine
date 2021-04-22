@@ -2,6 +2,7 @@ package model.geometry;
 
 import static java.util.Objects.isNull;
 import model.EngineModel;
+import utils.UtilsMath;
 
 /**
  *
@@ -128,7 +129,7 @@ public class Vertex {
     }
     
     public void normalize() {
-        float length = (float)Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
+        float length = (float)Math.sqrt(UtilsMath.DotProduct(this, this));
         this.x /= length;
         this.y /= length;
         this.z /= length;

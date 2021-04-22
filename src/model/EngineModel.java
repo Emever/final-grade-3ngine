@@ -12,6 +12,7 @@ package model;
 public class EngineModel {
     public static final int dimX = 1280;
     public static final int dimY = 720;
+    
     public static final String title = "3ngine";
     
     public static final String DEFAULT_SCENE_NAME = "scene";

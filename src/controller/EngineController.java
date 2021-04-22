@@ -30,7 +30,6 @@ public class EngineController implements KeyListener {
     
     private SceneObject scene;
     public static CameraModel camera;
-    public static float fTheta;
     public static Vertex lightDirection;
     
     public EngineController(EngineModel engine) {
@@ -76,8 +75,8 @@ public class EngineController implements KeyListener {
         }
         
         // 2. CREATE THE CAMERA FOR THE SCENE
-        EngineController.fTheta = 0.0f;
-        EngineController.camera = new CameraModel(this, new float[] {90.0f, .1f, 1000.0f});
+        EngineController.camera = new CameraModel(this);
+        EngineController.camera.setPos(new Vertex(0.0f, 0.0f, 5.0f));
         EngineController.camera.init();
         
         // 3. MODIFY THE "TEST SCENE"
@@ -100,7 +99,6 @@ public class EngineController implements KeyListener {
         this.scene = null;
         
         // 2. NULLIFY CAMERA AND PLUS VARS
-        EngineController.fTheta = 0.0f;
         EngineController.camera = null;
         
         // 3. NULLIFY LIGHTING
@@ -124,87 +122,157 @@ public class EngineController implements KeyListener {
     }
     
     private Mesh createTestCube() {
-        Mesh cube = new Mesh();
+        Mesh cube = new Mesh("cube", new Vertex(0.0f, 0.0f, 0.0f));
         // SOUTH
-        cube.addTriangle(new Vertex(0f,0f,0f),new Vertex(0f,1f,0f),new Vertex(1f,1f,0f));
-        cube.addTriangle(new Vertex(0f,0f,0f),new Vertex(1f,1f,0f),new Vertex(1f,0f,0f));
+        cube.addTriangle(new Vertex(-1f,-1f,-1f),new Vertex(-1f,1f,-1f),new Vertex(1f,1f,-1f));
+        cube.addTriangle(new Vertex(-1f,-1f,-1f),new Vertex(1f,1f,-1f),new Vertex(1f,-1f,-1f));
         // EAST
-        cube.addTriangle(new Vertex(1f,0f,0f),new Vertex(1f,1f,0f),new Vertex(1f,1f,1f));
-        cube.addTriangle(new Vertex(1f,0f,0f),new Vertex(1f,1f,1f),new Vertex(1f,0f,1f));
+        cube.addTriangle(new Vertex(1f,-1f,-1f),new Vertex(1f,1f,-1f),new Vertex(1f,1f,1f));
+        cube.addTriangle(new Vertex(1f,-1f,-1f),new Vertex(1f,1f,1f),new Vertex(1f,-1f,1f));
         // WEST
-        cube.addTriangle(new Vertex(0f,0f,1f),new Vertex(0f,1f,1f),new Vertex(0f,1f,0f));
-        cube.addTriangle(new Vertex(0f,0f,1f),new Vertex(0f,1f,0f),new Vertex(0f,0f,0f));
+        cube.addTriangle(new Vertex(-1f,-1f,1f),new Vertex(-1f,1f,1f),new Vertex(-1f,1f,-1f));
+        cube.addTriangle(new Vertex(-1f,-1f,1f),new Vertex(-1f,1f,-1f),new Vertex(-1f,-1f,-1f));
         // NORTH
-        cube.addTriangle(new Vertex(1f,0f,1f),new Vertex(1f,1f,1f),new Vertex(0f,1f,1f));
-        cube.addTriangle(new Vertex(1f,0f,1f),new Vertex(0f,1f,1f),new Vertex(0f,0f,1f));
+        cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(1f,1f,1f),new Vertex(-1f,1f,1f));
+        cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(-1f,1f,1f),new Vertex(-1f,-1f,1f));
         // TOP
-        cube.addTriangle(new Vertex(0f,1f,0f),new Vertex(0f,1f,1f),new Vertex(1f,1f,1f));
-        cube.addTriangle(new Vertex(0f,1f,0f),new Vertex(1f,1f,1f),new Vertex(1f,1f,0f));
+        cube.addTriangle(new Vertex(-1f,1f,-1f),new Vertex(-1f,1f,1f),new Vertex(1f,1f,1f));
+        cube.addTriangle(new Vertex(-1f,1f,-1f),new Vertex(1f,1f,1f),new Vertex(1f,1f,-1f));
         // BOT
-        cube.addTriangle(new Vertex(1f,0f,1f),new Vertex(0f,0f,1f),new Vertex(0f,0f,0f));
-        cube.addTriangle(new Vertex(1f,0f,1f),new Vertex(0f,0f,0f),new Vertex(1f,0f,0f));
+        cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(-1f,-1f,1f),new Vertex(-1f,-1f,-1f));
+        cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(-1f,-1f,-1f),new Vertex(1f,-1f,-1f));
         
         return cube;
     }
     
     public void loopFunction() {
         
-        //EngineController.fTheta += 1f*(float)EngineLoopThread.elapsedTime/1000;
-        //System.out.println("Elapsed time: " + EngineLoopThread.elapsedTime);
-        //System.out.println("fTheta: " + EngineController.fTheta);
+        // we check if camera is moving
+        if (this.inputController.getInputWASD()[0])   // W is checked
+            EngineController.camera.move(0.0f, 0.0f, -1.5f*(float)EngineLoopThread.TPFmillis/1000);
+        if (this.inputController.getInputWASD()[1])   // W is checked
+            EngineController.camera.move(-1.5f*(float)EngineLoopThread.TPFmillis/1000, 0.0f, 0.0f);
+        if (this.inputController.getInputWASD()[2])   // W is checked
+            EngineController.camera.move(0.0f, 0.0f, 1.5f*(float)EngineLoopThread.TPFmillis/1000);
+        if (this.inputController.getInputWASD()[3])   // W is checked
+            EngineController.camera.move(1.5f*(float)EngineLoopThread.TPFmillis/1000, 0.0f, 0.0f);
+        // we check if camera is turning around
+        if (this.inputController.getInputUDLR()[2])   // W is checked
+            EngineController.camera.turn(0,-1,0);
+        if (this.inputController.getInputUDLR()[3])   // W is checked
+            EngineController.camera.turn(0,1,0);
         
-        //amoave las transformaciones __________________________
-        float[][] matRotZ, matRotX; //rotation matrix
-        matRotZ = UtilsMath.getRotationMatrix_Z(EngineController.fTheta);
-        matRotX = UtilsMath.getRotationMatrix_X(EngineController.fTheta*.5f);
-        float[][] matTrans; //translation matrix
-        matTrans = UtilsMath.getTranslationMatrix(0.0f, 0.0f, 8.0f);
         
-        float[][] matWorld = UtilsMath.getIdentityMatrix();
-        // 0.1. We rotate with the matrix
-        matWorld = UtilsMath.MultiplyMatrixMatrix(matRotZ, matRotX);
-        // 0.2. We translate with the matrix
-        matWorld = UtilsMath.MultiplyMatrixMatrix(matWorld, matTrans);
-                
+        System.out.println(EngineController.camera.getRot().toString());
+        
+        
+        // VERTEX PROCESS ______________________________________________________
         for (Mesh m:this.scene.getMeshList()) {
-            
-            // 0. RESET VPROCESS VALUES (for the next loop)
-            m.initTrianglesVProcess();
-           
-            // 1. ROTATIONS
-            EngineController.camera.updateRotationMatrixes(
-                    EngineController.fTheta,    // x axis angle
-                    EngineController.fTheta/2,    // y axis angle
-                    EngineController.fTheta/2     // z axis angle
-                );
-            //m.editRotate("z", CameraModel.rotationMatrixZ);
-            //m.editRotate("x");
-            //m.editRotate("y", CameraModel.rotationMatrixY);
-            
-            // 2. TRANSLATING
-            //m.editTranslate(0,0,8f);
-            
-            m.loadTransformations(matWorld);
-            
-            
-            
-            // 2.5. UPDATE TRIANGLES' NORMAL VECTORS + LIGHTING VALUES
-            m.loadDepthValues();
-            m.sortTrianglesInDepth();    // rendering with: Painter's Algorythm
-            m.loadNormals();
+            // we apply the mesh rotation increments to its angle
+            //m.setPos(UtilsMath.AddVertex(m.getPos(), UtilsMath.MulVertex(m.getAddToPos(), (float)EngineLoopThread.TPFmillis/1000)));
+            m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
+
             for (Triangle t:m.getTris()) {
-                t.checkIfVisible();
-                if (t.isVisible())
-                    t.calculateLightingValue();
+                for (int vIndex=0; vIndex<3; vIndex++) {
+
+                    // we are just gonna modify "vProcess" atribute as vertex transforms
+                    UtilsMath.CopyVertexValues(t.getVList(vIndex), t.getVProcess(vIndex));
+                    //System.out.println("Original: " + t.getVProcess()[vIndex].toString());
+
+                    // now we can just calculate from and for vProcess
+
+                    // VERTEX Matrixes that we need:
+                    // [1] origin-translation-matrix (vertex process) -> vMatrix_TraOrigin
+                    // ---> por ahora sudamos <---
+
+                    // [2] rotZ vertex matrix -> vMatrix_RotZ - - - - - - - - - 
+                    float[][] vMatrix_RotZ = UtilsMath.getRotationMatrix_Z(m.getRot().getZ());
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_RotZ), vIndex);
+                    
+                    // [3] rotY vertex matrix -> vMatrix_RotY - - - - - - - - - 
+                    float[][] vMatrix_RotY = UtilsMath.getRotationMatrix_Y(m.getRot().getY());
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_RotY), vIndex);
+                    
+                    // [4] rotX vertex matrix -> vMatrix_RotX - - - - - - - - - 
+                    float[][] vMatrix_RotX = UtilsMath.getRotationMatrix_X(m.getRot().getX());
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_RotX), vIndex);
+                    
+                    // [5] translation vertex matrix -> vMatrix_Tra - - - - - - 
+                    float[][] vMatrix_Tra = UtilsMath.getTranslationMatrix(
+                            m.getPos().getX(),
+                            m.getPos().getY(),
+                            m.getPos().getZ()
+                        );
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_Tra), vIndex);
+
+                    
+                    // CAMERA PROCESS ______________________________________________________
+                    // [8] rotX camera matrix -> cMatrix_RotX - - - - - - - - -
+                    // [9] translation camera matrix -> cMatrix_Tra - - - - - - 
+                    EngineController.camera.createTranslationMatrix();
+                    float[][] cMatrix_Tra = CameraModel.translationMatrix;
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Tra), vIndex);
+                    //System.out.println("Camera translation: " + t.getVProcess()[vIndex].toString());
+                    
+                    // [6] rotZ camera matrix -> cMatrix_RotZ - - - - - - - - -
+                    // [7] rotY camera matrix -> cMatrix_RotY - - - - - - - - - 
+                    EngineController.camera.createRotationMatrixY(EngineController.camera.getRot().getY());
+                    float[][] cMatrix_RotY = UtilsMath.getRotationMatrix_Y(EngineController.camera.getRot().getY());
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotY), vIndex);
+                    
+                    
+                    // CAMERA PROJECTION + RENDERING________________________________________
+                    // [10] camera projection matrix -> cMatrix_Proj - - - - - -
+                    float[][] cMatrix_Proj = CameraModel.projectionMatrix;
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Proj), vIndex);
+                    //System.out.println("Camera projection: " + t.getVProcess()[vIndex].toString());
+
+                    // [11] camera perspective -> cMatrix_Persp - - - - - - - - 
+                    /*
+                    float[][] cMatrix_Persp = new float[][] {
+                        {1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f, 0.0f},
+                        {0.0f, 1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f},
+                        {0.0f, 0.0f, 1.0f, 0.0f},
+                        {0.0f, 0.0f, 0.0f, 1.0f}
+                    };
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Persp), vIndex);
+                    */
+                    // theoretically this is the same...
+                    float xWithPerspective = 0.0f, yWithPerspective = 0.0f;
+                    
+                    if (t.getVProcess(vIndex).getX() != 0.0f)
+                        xWithPerspective = t.getVProcess(vIndex).getX()/t.getVProcess(vIndex).getZ();
+                    
+                    if (t.getVProcess(vIndex).getY() != 0.0f)
+                        yWithPerspective = t.getVProcess(vIndex).getY()/t.getVProcess(vIndex).getZ();
+                    
+                    t.getVProcess(vIndex).setX(xWithPerspective);
+                    t.getVProcess(vIndex).setY(yWithPerspective);
+                    
+                    
+                    // [12] scaling to view -> cMatrix_toView - - - - - - - - - 
+                    float[][] cMatrix_toView = new float[][]
+                    {
+                        {1.0f, 0.0f, 0.0f, ((float)EngineModel.dimX)/2},
+                        {0.0f, -1.0f, 0.0f, ((float)EngineModel.dimY)/2},
+                        {0.0f, 0.0f, 1.0f, 0.0f},
+                        {0.0f, 0.0f, 0.0f, 1.0f}
+                    };
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_toView), vIndex);
+                    
+                    //t.getVProcess(vIndex).scaleToView();
+                    //System.out.println("Vertex!\n________________________");
+                }
+                //System.out.println("Triangle!\n__________________________________________");                
             }
-            
-            
-            // 3. PROJECTION
-            m.calculateAllProjections();
+            //System.out.println("Mesh!\n____________________________________________________________");                
         }
+        
+        
         
         // F. REPAINT
         this.engineView.repaint();
+        System.out.println("Repainted!\n_____________________________________________________________________\n");
     }
     
     
@@ -223,33 +291,50 @@ public class EngineController implements KeyListener {
                 break;
                 
             case KeyEvent.VK_W:
-                this.scene.getFromMeshList(0).editTranslate(0,0,-.1f);
+                this.inputController.getInputWASD()[0] = true;
                 break;
             
             case KeyEvent.VK_S:
-                this.scene.getFromMeshList(0).editTranslate(0,0,.1f);
+                this.inputController.getInputWASD()[2] = true;
                 break;
                 
             case KeyEvent.VK_A:
-                this.scene.getFromMeshList(0).editTranslate(.1f,0,0);
+                this.inputController.getInputWASD()[1] = true;
                 break;
                 
             case KeyEvent.VK_D:
-                this.scene.getFromMeshList(0).editTranslate(-.1f,0,0);
+                //this.scene.getFromMeshList(0).editTranslate(-.1f,0,0);
+                this.inputController.getInputWASD()[3] = true;
+                //EngineController.camera.move(1.0f*(float)EngineLoopThread.TPFmillis/1000, 0.0f, 0.0f);
+                break;
+                
+            case KeyEvent.VK_LEFT:
+                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
+                this.inputController.getInputUDLR()[2] = true;
+                break;
+            
+            case KeyEvent.VK_RIGHT:
+                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
+                this.inputController.getInputUDLR()[3] = true;
                 break;
                 
             case KeyEvent.VK_UP:
-                this.scene.getFromMeshList(0).editTranslate(0,.1f,0);
-                this.engineView.repaint();
+                //this.scene.getFromMeshList(0).editTranslate(0,.1f,0);
+                this.inputController.getInputUDLR()[0] = true;
                 break;
                 
             case KeyEvent.VK_DOWN:
-                this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
+                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
+                this.inputController.getInputUDLR()[1] = true;
+                break;
+                
+            case KeyEvent.VK_H: // "HELP" command
+                System.out.println("________________________________________");
+                System.out.println("Camera position: " + EngineController.camera.getPos().toString());
                 break;
                 
             case KeyEvent.VK_R:
                 // we set a rotation angle diff
-                EngineController.fTheta += 1f*(float)EngineLoopThread.elapsedTime/1000;
                 // recalculate the projections of the triangles
                 break;
         }
@@ -258,9 +343,45 @@ public class EngineController implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         switch(e.getKeyCode()) {
+            case KeyEvent.VK_W:
+                this.inputController.getInputWASD()[0] = false;
+                break;
+            
+            case KeyEvent.VK_S:
+                this.inputController.getInputWASD()[2] = false;
+                break;
+                
+            case KeyEvent.VK_A:
+                this.inputController.getInputWASD()[1] = false;
+                break;
+                
+            case KeyEvent.VK_D:
+                this.inputController.getInputWASD()[3] = false;
+                break;
+                
             case KeyEvent.VK_R:
                 // we set a rotation angle diff
                 // recalculate the projections of the triangles
+                break;
+                
+            case KeyEvent.VK_LEFT:
+                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
+                this.inputController.getInputUDLR()[2] = false;
+                break;
+            
+            case KeyEvent.VK_RIGHT:
+                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
+                this.inputController.getInputUDLR()[3] = false;
+                break;
+                
+            case KeyEvent.VK_UP:
+                //this.scene.getFromMeshList(0).editTranslate(0,.1f,0);
+                this.inputController.getInputUDLR()[0] = false;
+                break;
+                
+            case KeyEvent.VK_DOWN:
+                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
+                this.inputController.getInputUDLR()[1] = false;
                 break;
         }
     }
