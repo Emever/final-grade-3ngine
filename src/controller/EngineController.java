@@ -185,7 +185,7 @@ public class EngineController implements KeyListener {
         for (Mesh m:this.scene.getMeshList()) {
             // we apply the mesh rotation increments to its angle
             m.setPos(UtilsMath.AddVertex(m.getPos(), UtilsMath.MulVertex(m.getAddToPos(), (float)EngineLoopThread.TPFmillis/1000)));
-            //m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
+            m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
 
             for (Triangle t:m.getTris()) {
                 for (int vIndex=0; vIndex<3; vIndex++) {

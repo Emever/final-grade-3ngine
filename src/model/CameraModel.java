@@ -33,7 +33,7 @@ public class CameraModel {
         this.moveSpeed = 3f;
         
         this.rot = new Vertex(0.0f, 0.0f, 0.0f);
-        this.rotSpeed = new Vertex(UtilsMath.DegToRads(35), UtilsMath.DegToRads(50), 0.0f);
+        this.rotSpeed = new Vertex(UtilsMath.DegToRads(60), UtilsMath.DegToRads(90), 0.0f);
         
         this.vDir = new Vertex(0.0f, 0.0f, 0.0f);
         this.vRight = new Vertex(0.0f, 0.0f, 0.0f);

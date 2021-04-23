@@ -26,7 +26,7 @@ public class Mesh {
         this.addToPos = new Vertex(0.0f, 0.0f, 0.0f);
         
         this.rot = new Vertex(0.0f, 0.0f, 0.0f);
-        this.addToRot = new Vertex(0.0f, UtilsMath.DegToRads(45), 0.0f);
+        this.addToRot = new Vertex(UtilsMath.DegToRads(45), UtilsMath.DegToRads(5), UtilsMath.DegToRads(15));
         
     }
 
