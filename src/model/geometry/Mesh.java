@@ -22,11 +22,11 @@ public class Mesh {
         this.tris = new ArrayList<Triangle>();
         this.name = name;
         
-        this.pos = (isNull(initPos))? new Vertex(0.0f,0.0f,0.0f) : new Vertex(initPos);
-        this.addToPos = new Vertex(0.0f,0.5f,0.0f);
+        this.pos = (isNull(initPos))? new Vertex(0.0f, 0.0f, 0.0f) : new Vertex(initPos);
+        this.addToPos = new Vertex(0.0f, 0.0f, 0.0f);
         
-        this.rot = new Vertex(0.0f,0.0f,0.0f);
-        this.addToRot = new Vertex(0.0f,UtilsMath.DegToRads(45),0.0f);
+        this.rot = new Vertex(0.0f, 0.0f, 0.0f);
+        this.addToRot = new Vertex(0.0f, UtilsMath.DegToRads(45), 0.0f);
         
     }
 

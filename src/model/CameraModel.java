@@ -15,9 +15,10 @@ public class CameraModel {
     private EngineController engine;
     
     private Vertex pos;
-    private float posSpeed;
+    private float moveSpeed;
     private Vertex rot; // radians
     private Vertex rotSpeed;  // radians
+    private Vertex vLook;
     
     //public static float fTheta;
     public static float[][] projectionMatrix;
@@ -27,10 +28,12 @@ public class CameraModel {
     public CameraModel(EngineController controller) {
         this.engine = controller;
         this.pos = new Vertex(0.0f,0.0f,0.0f, "Camera position");
-        this.posSpeed = 1.5f;
+        this.moveSpeed = 1.5f;
         
         this.rot = new Vertex(0.0f, 0.0f, 0.0f);
-        this.rotSpeed = new Vertex(UtilsMath.DegToRads(5), UtilsMath.DegToRads(45), 0.0f);
+        this.rotSpeed = new Vertex(UtilsMath.DegToRads(35), UtilsMath.DegToRads(50), 0.0f);
+        
+        this.vLook = new Vertex(0.0f, 0.0f, 0.0f);
     }
 
     public Vertex getPos() {
@@ -56,11 +59,26 @@ public class CameraModel {
     
     
     public void init() {
+        this.vLook = UtilsMath.SubVertex(new Vertex(0f,0f,0f), this.pos);
+        this.vLook.normalize();
+        
         this.createProjectionMatrix();
+        this.update();
+    }
+    
+    public void update() {
+        // we update the matrixes that have some new value (pos, rot...)
         this.createTranslationMatrix();
         this.createRotationMatrixX(this.rot.getX());
         this.createRotationMatrixY(this.rot.getY());
         this.createRotationMatrixZ(this.rot.getZ());
+        
+        // update vLook vector (so we can move properly towards cam direction)
+        //this.vLook = UtilsMath.
+        this.vLook.setX((float)Math.cos(-1.0f*(float)Math.PI/2 + this.rot.getY()));
+        this.vLook.setZ(((float)Math.sin(-1.0f*(float)Math.PI/2 + this.rot.getY())));
+        this.vLook.normalize();
+        System.out.println(this.vLook.toString());
     }
     
     public void createProjectionMatrix() {
@@ -85,10 +103,14 @@ public class CameraModel {
     }
     
     public void move(float x, float y, float z) {
-        this.pos.translate(x, y, z);
+        this.pos.translate(
+                x * this.moveSpeed * this.vLook.getX(),
+                y * this.moveSpeed,
+                z * this.moveSpeed * this.vLook.getZ()
+            );
     }
     public void turn(int turnX, int turnY, int turnZ) {
-        System.out.println("rotSpeed: " + this.rotSpeed.toString());
+        System.out.println("rot: " + this.rot.toString());
         if (turnX != 0)
             this.rot.setX(this.rot.getX() + (float)turnX * this.rotSpeed.getX() * (float)EngineLoopThread.TPFmillis/1000);
         if (turnY != 0)

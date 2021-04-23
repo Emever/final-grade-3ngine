@@ -107,13 +107,11 @@ public class EngineController implements KeyListener {
         // 4. HIDE
         this.engineView.setVisible(false);
     }
-    
     public void startLoop() {
         this.mainLoop = new EngineLoopThread(this);
         this.loopIsOn = true;
         this.mainLoop.start();
     }
-        
     public void exitEngine() {
         this.loopIsOn = false;
         System.out.println(" done!");
@@ -147,29 +145,46 @@ public class EngineController implements KeyListener {
     
     public void loopFunction() {
         
+        // we update the camera matrixes
+        EngineController.camera.update();
+        
         // we check if camera is moving
         if (this.inputController.getInputWASD()[0])   // W is checked
-            EngineController.camera.move(0.0f, 0.0f, -1.5f*(float)EngineLoopThread.TPFmillis/1000);
-        if (this.inputController.getInputWASD()[1])   // W is checked
-            EngineController.camera.move(-1.5f*(float)EngineLoopThread.TPFmillis/1000, 0.0f, 0.0f);
-        if (this.inputController.getInputWASD()[2])   // W is checked
             EngineController.camera.move(0.0f, 0.0f, 1.5f*(float)EngineLoopThread.TPFmillis/1000);
-        if (this.inputController.getInputWASD()[3])   // W is checked
+        if (this.inputController.getInputWASD()[1])   // A is checked
+            EngineController.camera.move(-1.5f*(float)EngineLoopThread.TPFmillis/1000, 0.0f, 0.0f);
+        if (this.inputController.getInputWASD()[2])   // S is checked
+            EngineController.camera.move(0.0f, 0.0f, -1.5f*(float)EngineLoopThread.TPFmillis/1000);
+        if (this.inputController.getInputWASD()[3])   // D is checked
             EngineController.camera.move(1.5f*(float)EngineLoopThread.TPFmillis/1000, 0.0f, 0.0f);
-        // we check if camera is turning around
-        if (this.inputController.getInputUDLR()[2])   // W is checked
+        if (this.inputController.isInputCTRL())   // S is checked
+            EngineController.camera.move(0.0f, -1f*(float)EngineLoopThread.TPFmillis/1000, 0.0f);
+        if (this.inputController.isInputSPACE())   // D is checked
+            EngineController.camera.move(0.0f, 1f*(float)EngineLoopThread.TPFmillis/1000, 0.0f);
+        
+        // camera YAW (constant Y-axis)
+        if (this.inputController.getInputUDLR()[2])   // LEFT ARROW is checked
             EngineController.camera.turn(0,-1,0);
-        if (this.inputController.getInputUDLR()[3])   // W is checked
+        if (this.inputController.getInputUDLR()[3])   // RIGHT ARROW is checked
             EngineController.camera.turn(0,1,0);
-        
-        
-        System.out.println(EngineController.camera.getRot().toString());
+        // camera PITCH (constant X-axis)
+        if (this.inputController.getInputUDLR()[0])   // UP ARROW is checked
+            EngineController.camera.turn(1,0,0);
+        if (this.inputController.getInputUDLR()[1])   // DOWN ARROW is checked
+            EngineController.camera.turn(-1,0,0);
+        // camera ROLL (constant Z-axis)
+        /*
+        if (this.inputController.getInputUDLR()[0])   // add key to config.
+            EngineController.camera.turn(0,0,1);
+        if (this.inputController.getInputUDLR()[1])   // add key to config.
+            EngineController.camera.turn(0,0,-1);
+        */
         
         
         // VERTEX PROCESS ______________________________________________________
         for (Mesh m:this.scene.getMeshList()) {
             // we apply the mesh rotation increments to its angle
-            //m.setPos(UtilsMath.AddVertex(m.getPos(), UtilsMath.MulVertex(m.getAddToPos(), (float)EngineLoopThread.TPFmillis/1000)));
+            m.setPos(UtilsMath.AddVertex(m.getPos(), UtilsMath.MulVertex(m.getAddToPos(), (float)EngineLoopThread.TPFmillis/1000)));
             m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
 
             for (Triangle t:m.getTris()) {
@@ -181,7 +196,7 @@ public class EngineController implements KeyListener {
 
                     // now we can just calculate from and for vProcess
 
-                    // VERTEX Matrixes that we need:
+                    // VERTEX PROCESS ______________________________________________________
                     // [1] origin-translation-matrix (vertex process) -> vMatrix_TraOrigin
                     // ---> por ahora sudamos <---
 
@@ -207,21 +222,23 @@ public class EngineController implements KeyListener {
 
                     
                     // CAMERA PROCESS ______________________________________________________
-                    // [8] rotX camera matrix -> cMatrix_RotX - - - - - - - - -
+                    
                     // [9] translation camera matrix -> cMatrix_Tra - - - - - - 
-                    EngineController.camera.createTranslationMatrix();
                     float[][] cMatrix_Tra = CameraModel.translationMatrix;
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Tra), vIndex);
                     //System.out.println("Camera translation: " + t.getVProcess()[vIndex].toString());
                     
-                    // [6] rotZ camera matrix -> cMatrix_RotZ - - - - - - - - -
+                    // [6] rotZ camera matrix -> cMatrix_RotZ - - - - - - - - - 
+                    float[][] cMatrix_RotZ = UtilsMath.getRotationMatrix_Z(EngineController.camera.getRot().getZ());
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotZ), vIndex);
                     // [7] rotY camera matrix -> cMatrix_RotY - - - - - - - - - 
-                    EngineController.camera.createRotationMatrixY(EngineController.camera.getRot().getY());
                     float[][] cMatrix_RotY = UtilsMath.getRotationMatrix_Y(EngineController.camera.getRot().getY());
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotY), vIndex);
+                    // [8] rotX camera matrix -> cMatrix_RotX - - - - - - - - - 
+                    float[][] cMatrix_RotX = UtilsMath.getRotationMatrix_X(EngineController.camera.getRot().getX());
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotX), vIndex);
                     
-                    
-                    // CAMERA PROJECTION + RENDERING________________________________________
+                    // CAMERA PROJECTION + RENDERING _______________________________________
                     // [10] camera projection matrix -> cMatrix_Proj - - - - - -
                     float[][] cMatrix_Proj = CameraModel.projectionMatrix;
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Proj), vIndex);
@@ -272,7 +289,7 @@ public class EngineController implements KeyListener {
         
         // F. REPAINT
         this.engineView.repaint();
-        System.out.println("Repainted!\n_____________________________________________________________________\n");
+        //System.out.println("Repainted!\n_____________________________________________________________________\n");
     }
     
     
@@ -337,6 +354,14 @@ public class EngineController implements KeyListener {
                 // we set a rotation angle diff
                 // recalculate the projections of the triangles
                 break;
+                
+            case KeyEvent.VK_SPACE:
+                this.inputController.setInputSPACE(true);
+                break;
+                
+            case KeyEvent.VK_CONTROL:
+                this.inputController.setInputCTRL(true);
+                break;
         }
     }
     
@@ -365,23 +390,27 @@ public class EngineController implements KeyListener {
                 break;
                 
             case KeyEvent.VK_LEFT:
-                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
                 this.inputController.getInputUDLR()[2] = false;
                 break;
             
             case KeyEvent.VK_RIGHT:
-                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
                 this.inputController.getInputUDLR()[3] = false;
                 break;
                 
             case KeyEvent.VK_UP:
-                //this.scene.getFromMeshList(0).editTranslate(0,.1f,0);
                 this.inputController.getInputUDLR()[0] = false;
                 break;
                 
             case KeyEvent.VK_DOWN:
-                //this.scene.getFromMeshList(0).editTranslate(0,-.1f,0);
                 this.inputController.getInputUDLR()[1] = false;
+                break;
+                
+            case KeyEvent.VK_SPACE:
+                this.inputController.setInputSPACE(false);
+                break;
+                
+            case KeyEvent.VK_CONTROL:
+                this.inputController.setInputCTRL(false);
                 break;
         }
     }
