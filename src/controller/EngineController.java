@@ -147,20 +147,20 @@ public class EngineController implements KeyListener {
         
         // we update the camera matrixes
         EngineController.camera.update();
-        
+        float elapsedTime = (float)EngineLoopThread.TPFmillis/1000;
         // we check if camera is moving
         if (this.inputController.getInputWASD()[0])   // W is checked
-            EngineController.camera.move(0.0f, 0.0f, 1.5f*(float)EngineLoopThread.TPFmillis/1000);
+            EngineController.camera.move("W", elapsedTime, 0.0f, elapsedTime);
         if (this.inputController.getInputWASD()[1])   // A is checked
-            EngineController.camera.move(-1.5f*(float)EngineLoopThread.TPFmillis/1000, 0.0f, 0.0f);
+            EngineController.camera.move("A", -elapsedTime, 0.0f, -elapsedTime);
         if (this.inputController.getInputWASD()[2])   // S is checked
-            EngineController.camera.move(0.0f, 0.0f, -1.5f*(float)EngineLoopThread.TPFmillis/1000);
+            EngineController.camera.move("S", -elapsedTime, 0.0f, -elapsedTime);
         if (this.inputController.getInputWASD()[3])   // D is checked
-            EngineController.camera.move(1.5f*(float)EngineLoopThread.TPFmillis/1000, 0.0f, 0.0f);
+            EngineController.camera.move("D", elapsedTime, 0.0f, elapsedTime);
         if (this.inputController.isInputCTRL())   // S is checked
-            EngineController.camera.move(0.0f, -1f*(float)EngineLoopThread.TPFmillis/1000, 0.0f);
+            EngineController.camera.move("SPACE", 0.0f, -elapsedTime, 0.0f);
         if (this.inputController.isInputSPACE())   // D is checked
-            EngineController.camera.move(0.0f, 1f*(float)EngineLoopThread.TPFmillis/1000, 0.0f);
+            EngineController.camera.move("CTRL", 0.0f, elapsedTime, 0.0f);
         
         // camera YAW (constant Y-axis)
         if (this.inputController.getInputUDLR()[2])   // LEFT ARROW is checked
@@ -185,7 +185,7 @@ public class EngineController implements KeyListener {
         for (Mesh m:this.scene.getMeshList()) {
             // we apply the mesh rotation increments to its angle
             m.setPos(UtilsMath.AddVertex(m.getPos(), UtilsMath.MulVertex(m.getAddToPos(), (float)EngineLoopThread.TPFmillis/1000)));
-            m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
+            //m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
 
             for (Triangle t:m.getTris()) {
                 for (int vIndex=0; vIndex<3; vIndex++) {
