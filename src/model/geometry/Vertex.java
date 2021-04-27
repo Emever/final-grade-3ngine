@@ -108,7 +108,6 @@ public class Vertex {
         this.task = task;
     }
     
-    
     public void scaleToView() {
         this.x += 1f;
         this.x *= 0.5f * (float)EngineModel.dimX; // scale to half of the screen

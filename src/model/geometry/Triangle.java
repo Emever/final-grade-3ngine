@@ -13,6 +13,7 @@ public class Triangle {
     private int id;
     private Vertex[] vList;
     private Vertex[] vProcess;
+    private Vertex[] vProjection;
     private Vertex vNormal;
     private float lightingValue = 0;
     private float depthValue;
@@ -29,6 +30,11 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
+        this.vProjection = new Vertex[3];
+        for (int i=0; i<3; i++) {
+            this.vProjection[i] = new Vertex();
+            UtilsMath.CopyVertexValues(this.vList[i], this.vProjection[i]);
+        }
         this.calculateVNormal();
         this.lightingValue = 0;
     }
@@ -43,6 +49,11 @@ public class Triangle {
         for (int i=0; i<3; i++) {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
+        }
+        this.vProjection = new Vertex[3];
+        for (int i=0; i<3; i++) {
+            this.vProjection[i] = new Vertex();
+            UtilsMath.CopyVertexValues(this.vList[i], this.vProjection[i]);
         }
         this.calculateVNormal();
         this.lightingValue = 0;
@@ -59,6 +70,11 @@ public class Triangle {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
         }
+        this.vProjection = new Vertex[3];
+        for (int i=0; i<3; i++) {
+            this.vProjection[i] = new Vertex();
+            UtilsMath.CopyVertexValues(this.vList[i], this.vProjection[i]);
+        }
         this.calculateVNormal();
         this.lightingValue = 0;
     }
@@ -72,6 +88,11 @@ public class Triangle {
         for (int i=0; i<3; i++) {
             this.vProcess[i] = new Vertex();
             UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
+        }
+        this.vProjection = new Vertex[3];
+        for (int i=0; i<3; i++) {
+            this.vProjection[i] = new Vertex();
+            UtilsMath.CopyVertexValues(this.vList[i], this.vProjection[i]);
         }
         this.calculateVNormal();
         this.lightingValue = 0;
@@ -87,6 +108,11 @@ public class Triangle {
         this.vProcess = new Vertex[3];
         for (int i=0; i<3; i++) {
             this.vProcess[i] = new Vertex(source.getVProcess()[i]);
+        }
+        this.vProjection = new Vertex[3];
+        for (int i=0; i<3; i++) {
+            this.vProjection[i] = new Vertex();
+            this.vProjection[i] = new Vertex(source.getVProjection()[i]);
         }
     }
     
@@ -135,6 +161,18 @@ public class Triangle {
     public void setVProcess(Vertex newVertex, int index) {
         this.vProcess[index] = newVertex;
     }
+    public Vertex[] getVProjection() {
+        return vProjection;
+    }
+    public Vertex getVProjection(int index) {
+        return this.vProjection[index];
+    }
+    public void setVProjection(Vertex[] vProjection) {
+        this.vProjection = vProjection;
+    }
+    public void setVProjection(Vertex vProjection, int index) {
+        this.vProjection[index] = vProjection;
+    }
     public Vertex getvNormal() {
         return vNormal;
     }
@@ -154,26 +192,41 @@ public class Triangle {
         this.visible = visible;
     }
     
-    public void checkIfVisible() {
+    public void checkIfBehindCamera() {
         //boolean view = this.vNormal.getZ() < 0;
+        if (Math.min(
+                this.vProjection[0].getZ(),
+                Math.min(
+                        this.vProjection[1].getZ(),
+                        this.vProjection[2].getZ()
+                    )
+            ) >= 0f) {
+            
+            this.visible = true;
+        }
+    }
+    
+    public void checkIfFacingCamera() {
+        
+        //System.out.println("vProcess " + this.vProcess[0].toString());
+        //System.out.println("cameraDir" + EngineController.camera.getvDir().toString());
         Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
-        this.visible = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0.0f;
+        cameraRay.normalize();
+        //System.out.println("cameraRay" + cameraRay.toString());
+        this.visible = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0.5f;
+        //System.out.println("________________________________\n");
+        
+        
+        // ESTA ERA MI IDEA (QUE NO VA)
+        //System.out.println("vNormal: " + this.vNormal.toString() + "\t|\t" + EngineController.camera.getvDir().toString());
+        //this.visible = UtilsMath.DotProduct(this.vNormal, EngineController.camera.getvDir()) <= 0;
     }
     
     public void calculateDepthValue() {
         this.depthValue =
-                (this.vProcess[0].getZ() + 
-                this.vProcess[1].getZ() +
-                this.vProcess[2].getZ()) / 3;
-    }
-    
-    public void calculateDepthValueRegarding(String mode) {
-        mode = mode.toUpperCase();
-        switch (mode) {
-            default:
-                this.calculateDepthValue();
-                break;
-        }
+                (this.vProjection[0].getZ() + 
+                this.vProjection[1].getZ() +
+                this.vProjection[2].getZ()) / 3;
     }
     
     public void calculateVNormal() {

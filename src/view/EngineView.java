@@ -26,7 +26,7 @@ public class EngineView extends JComponent {
         this.engineController = controller;
         
         this.window = new JFrame();
-        this.window.setUndecorated(true);
+        //this.window.setUndecorated(true);
         this.window.setSize(EngineModel.dimX, EngineModel.dimY);
         this.window.setTitle(EngineModel.title);
         this.window.setLocationRelativeTo(null);
@@ -75,7 +75,7 @@ public class EngineView extends JComponent {
         //System.out.print("Drawing meshes...");
         for (Mesh m:this.engineController.getScene().getMeshList())
             for (Triangle t:m.getTris()) // -> every triangle from every mesh
-                /*if (t.isVisible()) */this.drawTriangle(t);
+                if (t.isVisible()) this.drawTriangle(t);
         
         //System.out.println(" done!");
     }
@@ -105,14 +105,14 @@ public class EngineView extends JComponent {
         this.g2.setColor(Color.CYAN);
         this.g2.drawPolygon(
             new int[] {
-                (int)t.getVProcess(0).getX(),
-                (int)t.getVProcess(1).getX(),
-                (int)t.getVProcess(2).getX()
+                (int)t.getVProjection(0).getX(),
+                (int)t.getVProjection(1).getX(),
+                (int)t.getVProjection(2).getX()
             },
             new int[] {
-                (int)t.getVProcess(0).getY(),
-                (int)t.getVProcess(1).getY(),
-                (int)t.getVProcess(2).getY()
+                (int)t.getVProjection(0).getY(),
+                (int)t.getVProjection(1).getY(),
+                (int)t.getVProjection(2).getY()
             },
             3   // n vertexes
         );

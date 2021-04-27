@@ -18,6 +18,8 @@ public class CameraModel {
     private float moveSpeed;
     private Vertex rot; // radians
     private Vertex rotSpeed;  // radians
+    public static final float maxPitch = -(float)Math.PI/2 + 0.1f;
+    public static final float minPitch = (float)Math.PI/2 - 0.1f;
     private Vertex vDir;
     private Vertex vRight, vUp;
     
@@ -142,12 +144,27 @@ public class CameraModel {
     }
     
     public void turn(int turnX, int turnY, int turnZ) {
-        //System.out.println("rot: " + this.rot.toString());
         if (turnX != 0)
             this.rot.setX(this.rot.getX() + (float)turnX * this.rotSpeed.getX() * (float)EngineLoopThread.TPFmillis/1000);
         if (turnY != 0)
             this.rot.setY(this.rot.getY() + (float)turnY * this.rotSpeed.getY() * (float)EngineLoopThread.TPFmillis/1000);
         if (turnZ != 0)
             this.rot.setZ(this.rot.getZ() + (float)turnZ * this.rotSpeed.getZ() * (float)EngineLoopThread.TPFmillis/1000);
+        
+        // we cut off values higher than 2PI
+        if (this.getRot().getX() >= 2*(float)Math.PI)   // +too much X rotation
+            this.getRot().setX(this.getRot().getX() - 2*(float)Math.PI);
+        else if (this.getRot().getX() <= -2*(float)Math.PI)  // -too less X rot
+            this.getRot().setX(this.getRot().getX() + 2*(float)Math.PI);
+        if (this.getRot().getY() >= 2*(float)Math.PI)   // +too much Y rotation
+            this.getRot().setY(this.getRot().getY() - 2*(float)Math.PI);
+        else if (this.getRot().getY() <= -2*(float)Math.PI)  // -too less Y rot
+            this.getRot().setY(this.getRot().getY() + 2*(float)Math.PI);
+        if (this.getRot().getZ() >= 2*(float)Math.PI)   // +too much Z rotation
+            this.getRot().setZ(this.getRot().getZ() - 2*(float)Math.PI);
+        else if (this.getRot().getZ() <= -2*(float)Math.PI)  // -too less Z rot
+            this.getRot().setZ(this.getRot().getZ() + 2*(float)Math.PI);
+        
+        System.out.println("\n___________\nrot: " + this.rot.toString());
     }
 }

@@ -26,8 +26,10 @@ public class Mesh {
         this.addToPos = new Vertex(0.0f, 0.0f, 0.0f);
         
         this.rot = new Vertex(0.0f, 0.0f, 0.0f);
-        this.addToRot = new Vertex(UtilsMath.DegToRads(45), UtilsMath.DegToRads(5), UtilsMath.DegToRads(15));
-        
+        this.addToRot = new Vertex(UtilsMath.DegToRads(45), UtilsMath.DegToRads(5), -UtilsMath.DegToRads(15));
+        this.addToRot = new Vertex(0f, UtilsMath.DegToRads(45), 0f);
+        //this.addToRot = new Vertex(UtilsMath.DegToRads(45), 0f, 0f);
+        //this.addToRot = new Vertex(0f, 0f, UtilsMath.DegToRads(45));
     }
 
     public String getName() {
@@ -93,24 +95,6 @@ public class Mesh {
                 max = t.getId();
         return max;
     }
-    
-    
-    // TRANSLATING MESH
-    public void editTranslate(float x, float y, float z) {
-        for (Triangle t:this.tris)
-            t.editTranslate(x,y,z);
-    }
-    
-    // ROTATING MESH
-    public void editRotate(String axis, float[][] matrix) {
-        for (Triangle t:this.tris)
-            t.editRotate(axis, matrix);
-    }
-    
-    public void loadNormals() {
-        for (Triangle t:this.tris)
-            t.calculateVNormal();
-    }
 
     public void loadDepthValues() {
         for (Triangle t:this.tris)
@@ -119,7 +103,7 @@ public class Mesh {
     
     public void sortTrianglesInDepth() {
         for (Triangle t:this.tris)
-            t.calculateDepthValueRegarding("projection");
+            t.calculateDepthValue();
         
         int loop = 0;
         while (loop < this.tris.size()-1) {
