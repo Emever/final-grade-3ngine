@@ -65,7 +65,7 @@ public class Vertex {
     
     @Override
     public String toString() {
-        return "("+this.x+", "+this.y+", "+this.z+")";
+        return "("+String.format("%.2f", this.x)+", "+String.format("%.2f", this.y)+", "+String.format("%.2f", this.z)+")";
     }
     public String toStringWithId() {
         return "id: "+this.id+" - ("+this.x+", "+this.y+", "+this.z+")";

@@ -20,24 +20,6 @@ public class Triangle {
     
     private boolean visible;
     
-    public Triangle() {
-        this.id = 0;
-        this.vList = new Vertex[3];
-        for (int i=0; i<3; i++)
-            this.vList[i] = new Vertex();
-        this.vProcess = new Vertex[3];
-        for (int i=0; i<3; i++) {
-            this.vProcess[i] = new Vertex();
-            UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
-        }
-        this.vProjection = new Vertex[3];
-        for (int i=0; i<3; i++) {
-            this.vProjection[i] = new Vertex();
-            UtilsMath.CopyVertexValues(this.vList[i], this.vProjection[i]);
-        }
-        this.calculateVNormal();
-        this.lightingValue = 0;
-    }
     public Triangle(Vertex v1, Vertex v2, Vertex v3) {
         this.id = 0;
         this.vList = new Vertex[3];
@@ -58,6 +40,7 @@ public class Triangle {
         this.calculateVNormal();
         this.lightingValue = 0;
     }
+    
     public Triangle(int id, Vertex v1, Vertex v2, Vertex v3) {
         this.id = id;
         this.vList = new Vertex[3];
@@ -78,25 +61,7 @@ public class Triangle {
         this.calculateVNormal();
         this.lightingValue = 0;
     }
-    public Triangle(int id, Vertex[] vs) {
-        this.id = 0;
-        this.vList = new Vertex[3];
-        for (int i=0; i<3; i++)
-            this.vList[i] = vs[i];
-        
-        this.vProcess = new Vertex[3];
-        for (int i=0; i<3; i++) {
-            this.vProcess[i] = new Vertex();
-            UtilsMath.CopyVertexValues(this.vList[i], this.vProcess[i]);
-        }
-        this.vProjection = new Vertex[3];
-        for (int i=0; i<3; i++) {
-            this.vProjection[i] = new Vertex();
-            UtilsMath.CopyVertexValues(this.vList[i], this.vProjection[i]);
-        }
-        this.calculateVNormal();
-        this.lightingValue = 0;
-    }
+    
     public Triangle(Triangle source) {
         this.id = source.getId();
         this.lightingValue = source.getLightingValue();
@@ -194,26 +159,26 @@ public class Triangle {
     
     public void checkIfBehindCamera() {
         //boolean view = this.vNormal.getZ() < 0;
-        if (Math.min(
+        this.visible = Math.max(
                 this.vProjection[0].getZ(),
-                Math.min(
+                Math.max(
                         this.vProjection[1].getZ(),
                         this.vProjection[2].getZ()
                     )
-            ) >= 0f) {
-            
-            this.visible = true;
-        }
+            ) >= 0f;
     }
     
     public void checkIfFacingCamera() {
         
         //System.out.println("vProcess " + this.vProcess[0].toString());
         //System.out.println("cameraDir" + EngineController.camera.getvDir().toString());
-        Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
-        cameraRay.normalize();
+        //Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
+        //cameraRay.normalize();
         //System.out.println("cameraRay" + cameraRay.toString());
-        this.visible = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0.5f;
+        float dotProduct = UtilsMath.DotProduct(this.vNormal, EngineController.camera.getvDir());
+        this.visible = dotProduct < 0.75f;
+        System.out.println("camVDir: " + EngineController.camera.getvDir().toString());
+        System.out.println("vNormal: " + this.vNormal.toString() + " -> dot product: " + String.format("%.2f", dotProduct));
         //System.out.println("________________________________\n");
         
         

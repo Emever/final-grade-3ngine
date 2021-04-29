@@ -121,6 +121,12 @@ public class UtilsMath {
         float vX = focalLength * (float)EngineModel.dimX / (2* ((float)EngineModel.dimX/10000));
         float vY = focalLength * (float)EngineModel.dimY / (2* ((float)EngineModel.dimY/10000));
         
+        return new float[][] {
+            {vX,    0.0f,   0.0f,   0.0f},
+            {0.0f,  vY,     0.0f,   0.0f},
+            {0.0f,  0.0f,   -1.0f,  0.0f},
+            {0.0f,  0.0f,   0.0f,   1.0f}
+        };
         /*
         float fFOVRad = UtilsMath.DegToRads(90);
         float FOVfactor = 1.0f / (float)Math.tan(fFOVRad*.5f);
@@ -136,13 +142,6 @@ public class UtilsMath {
             {0, 0,  -fNear * fQ,  0}
         };
         */
-        
-        return new float[][] {
-            {vX,    0.0f,   0.0f,   0.0f},
-            {0.0f,  vY,     0.0f,   0.0f},
-            {0.0f,  0.0f,   -1.0f,  0.0f},
-            {0.0f,  0.0f,   0.0f,   1.0f}
-        };
     }
     
     public static float[][] getTranslationMatrix(float x, float y, float z) {

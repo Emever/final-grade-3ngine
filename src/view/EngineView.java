@@ -75,14 +75,15 @@ public class EngineView extends JComponent {
         //System.out.print("Drawing meshes...");
         for (Mesh m:this.engineController.getScene().getMeshList())
             for (Triangle t:m.getTris()) // -> every triangle from every mesh
-                if (t.isVisible()) this.drawTriangle(t);
+                if (t.isVisible())
+                    this.drawTriangle(t);
         
         //System.out.println(" done!");
     }
     
     public void drawTriangle(Triangle t) {
         // draw the triangles of every mesh into the screen
-        /*
+        
         this.g2.setColor(new Color(
             t.getLightingValue(),
             t.getLightingValue(),
@@ -90,17 +91,17 @@ public class EngineView extends JComponent {
         );
         this.g2.fillPolygon(
             new int[] {
-                (int)t.getVProcess(0).getX(),
-                (int)t.getVProcess(1).getX(),
-                (int)t.getVProcess(2).getX()
+                (int)t.getVProjection(0).getX(),
+                (int)t.getVProjection(1).getX(),
+                (int)t.getVProjection(2).getX()
             },
             new int[] {
-                (int)t.getVProcess(0).getY(),
-                (int)t.getVProcess(1).getY(),
-                (int)t.getVProcess(2).getY()
+                (int)t.getVProjection(0).getY(),
+                (int)t.getVProjection(1).getY(),
+                (int)t.getVProjection(2).getY()
             },
             3   // n vertexes
-        );*/
+        );
         
         this.g2.setColor(Color.CYAN);
         this.g2.drawPolygon(

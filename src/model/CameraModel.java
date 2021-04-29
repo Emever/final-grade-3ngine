@@ -32,7 +32,7 @@ public class CameraModel {
     public CameraModel(EngineController controller) {
         this.engine = controller;
         this.pos = new Vertex(0.0f,0.0f,0.0f, "Camera position");
-        this.moveSpeed = 3f;
+        this.moveSpeed = 2f;
         
         this.rot = new Vertex(0.0f, 0.0f, 0.0f);
         this.rotSpeed = new Vertex(UtilsMath.DegToRads(60), UtilsMath.DegToRads(90), 0.0f);
@@ -165,6 +165,6 @@ public class CameraModel {
         else if (this.getRot().getZ() <= -2*(float)Math.PI)  // -too less Z rot
             this.getRot().setZ(this.getRot().getZ() + 2*(float)Math.PI);
         
-        System.out.println("\n___________\nrot: " + this.rot.toString());
+        //System.out.println("\n___________\nrot: " + this.rot.toString());
     }
 }
