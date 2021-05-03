@@ -127,8 +127,12 @@ public class Vertex {
         this.z *= m;
     }
     
+    public float getLength() {
+        return (float)Math.sqrt(UtilsMath.DotProduct(this, this));
+    }
+            
     public void normalize() {
-        float length = (float)Math.sqrt(UtilsMath.DotProduct(this, this));
+        float length = this.getLength();
         this.x /= length;
         this.y /= length;
         this.z /= length;

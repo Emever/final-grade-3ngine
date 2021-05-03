@@ -3,6 +3,7 @@ package controller;
 import java.io.*;
 import java.util.ArrayList;
 import static java.util.Objects.isNull;
+import java.util.Scanner;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import model.*;
@@ -155,42 +156,42 @@ public class FileController {
         SceneObject scene = null;
         
         try {
-            BufferedReader file = new BufferedReader(new FileReader(this.sceneFile));
-
             
             String sceneTitle = EngineModel.DEFAULT_SCENE_NAME;
             ArrayList<Vertex> vxList = new ArrayList<Vertex>();
             ArrayList<Triangle> tList = new ArrayList<Triangle>();
 
+            Scanner reader = new Scanner(this.sceneFile);
+            String line;
+            String[] splitLine;
+            ArrayList<String> segments = new ArrayList<String>();/* = line.split(" ");*/
             
-            // grid width, height and spacing
-            String line = file.readLine();
-            String[] segments;/* = line.split(" ");*/
-
-            // nVertex and nVectors
-            //line = file.readLine();
-
-            // read every line
-            while (line != null) {
+            // read the object file
+            while (reader.hasNextLine()) {
+                // read the line and generate the segments
+                line = reader.nextLine();
+                if (line.isEmpty()) continue;
+                splitLine = line.split(" ");
+                segments.clear();
+                for (String segment:splitLine)
+                    if (!segment.equals("")) segments.add(segment);
                 
-                segments = line.split(" ");
-                
-                if (isNull(line) || segments[0].equals("#")) {
+                if (isNull(line) || segments.get(0).equals("#")) {
                     //System.out.println("Comment read.");
                 }
-                else if (segments[0].equals("o")) {
-                    sceneTitle = segments[1];
+                else if (segments.get(0).equals("o")) {
+                    sceneTitle = segments.get(1);
                 }
-                else if (segments[0].equals("v")) {
+                else if (segments.get(0).equals("v")) {
                     vxList.add(
                         new Vertex(
-                                Float.parseFloat(segments[1]),  // x (float)
-                                Float.parseFloat(segments[2]),  // y (float)
-                                Float.parseFloat(segments[3])   // z (float)
+                                Float.parseFloat(segments.get(1)),  // x (float)
+                                Float.parseFloat(segments.get(2)),  // y (float)
+                                Float.parseFloat(segments.get(3))   // z (float)
                         )
                     );
                 }
-                else if (segments[0].equals("vn")) {
+                else if (segments.get(0).equals("vn")) {
                     /*vxList.add(
                         new Vertex(
                                 Float.parseFloat(segments[1]),  // x (float)
@@ -199,32 +200,32 @@ public class FileController {
                         )
                     );*/
                 }
-                else if (segments[0].equals("vt")) {
+                else if (segments.get(0).equals("vt")) {
                     //System.out.println("For now, we won't be needing textures");
                 }
-                else if (segments[0].equals("f")) {
+                else if (segments.get(0).equals("f")) {
                     
                     // 2 options: we could have faces of 3, 4 or more vertex:
                     
-                    if (segments.length == 4) // command + 3 vertex (1 triangle)
+                    if (segments.size() == 4) // command + 3 vertex (1 triangle)
                     {
                         tList.add(new Triangle(
-                                this.getVertexFromObjFile(vxList, segments[1]),
-                                this.getVertexFromObjFile(vxList, segments[2]),
-                                this.getVertexFromObjFile(vxList, segments[3]))
+                                this.getVertexFromObjFile(vxList, segments.get(1)),
+                                this.getVertexFromObjFile(vxList, segments.get(2)),
+                                this.getVertexFromObjFile(vxList, segments.get(3)))
                         );
                     }
-                    else if (segments.length == 5) // command + 4 vertex (2 tri)
+                    else if (segments.size() == 5) // command + 4 vertex (2 tri)
                     {
                         tList.add(new Triangle(
-                                this.getVertexFromObjFile(vxList, segments[1]),
-                                this.getVertexFromObjFile(vxList, segments[2]),
-                                this.getVertexFromObjFile(vxList, segments[3]))
+                                this.getVertexFromObjFile(vxList, segments.get(1)),
+                                this.getVertexFromObjFile(vxList, segments.get(2)),
+                                this.getVertexFromObjFile(vxList, segments.get(3)))
                         );
                         tList.add(new Triangle(
-                                this.getVertexFromObjFile(vxList, segments[1]),
-                                this.getVertexFromObjFile(vxList, segments[3]),
-                                this.getVertexFromObjFile(vxList, segments[4]))
+                                this.getVertexFromObjFile(vxList, segments.get(1)),
+                                this.getVertexFromObjFile(vxList, segments.get(3)),
+                                this.getVertexFromObjFile(vxList, segments.get(4)))
                         );
                     }
                     
@@ -232,18 +233,20 @@ public class FileController {
                 else {
                     //System.out.println("Command unknown.");
                 }
-                
-                line = file.readLine();
             }
+            reader.close();
             
             scene = new SceneObject();
             scene.setSceneTitle(sceneTitle);
-            Mesh m = new Mesh("test", null);
+            Mesh m = new Mesh("obj read", null);
             m.setTris(tList);
             scene.addMesh(m);
             
-        } catch (IOException e) {
-            e.printStackTrace();
+            
+        } catch (Exception e) {
+            //e.printStackTrace();
+            
+            System.out.print("\nThere was an error reading the file!\nClosing enigne... ");
         }
         // todo: convert from vectors to triangles.
         // todo: add those triangles to the sceneObject.

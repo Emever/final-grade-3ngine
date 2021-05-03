@@ -93,7 +93,12 @@ public class EngineController implements KeyListener {
         this.engineView.setVisible(true);
     }
     
-    public void stop() {
+    public void stopMainLoop() {
+        this.loopIsOn = false;
+        if (!isNull(this.mainLoop)) this.mainLoop.interrupt();
+        this.mainLoop = null;
+    }
+    public void closeScene() {
         // 1. NULLIFY THE SCENE OBJECT
         this.scene.deleteMeshes();
         this.scene = null;
@@ -141,7 +146,7 @@ public class EngineController implements KeyListener {
         // TOP
         cube.addTriangle(new Vertex(-1f,1f,-1f),new Vertex(-1f,1f,1f),new Vertex(1f,1f,1f));
         cube.addTriangle(new Vertex(-1f,1f,-1f),new Vertex(1f,1f,1f),new Vertex(1f,1f,-1f));
-        
+        /**/
         // BOT
         cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(-1f,-1f,1f),new Vertex(-1f,-1f,-1f));
         cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(-1f,-1f,-1f),new Vertex(1f,-1f,-1f));
@@ -150,92 +155,76 @@ public class EngineController implements KeyListener {
     }
     
     public void loopFunction() {
-        
-        // 0. update the camera matrixes
-        EngineController.camera.update();
         float elapsedTime = (float)EngineLoopThread.TPFmillis/1000;
         
         // 1. we check player inputs
         this.applyPlayerInput(elapsedTime);
         
+        // 2. update the camera matrixes
+        EngineController.camera.update();
         
-        // VERTEX PROCESS ______________________________________________________
+        // 3. generate the matrixes needed (optimized)
+        float[][] cMatrix_Tra = CameraModel.translationMatrix;
+        float[][] cMatrix_RotZ = UtilsMath.getRotationMatrix_Z(EngineController.camera.getRot().getZ());
+        float[][] cMatrix_RotY = UtilsMath.getRotationMatrix_Y(EngineController.camera.getRot().getY());
+        float[][] cMatrix_RotX = UtilsMath.getRotationMatrix_X(EngineController.camera.getRot().getX());
+        float[][] cMatrix_Proj = CameraModel.projectionMatrix;
+        
+        // ______________________________________________________ VERTEX PROCESS
         for (Mesh m:this.scene.getMeshList()) {
+            
             // we apply the mesh rotation increments to its angle
             m.setPos(UtilsMath.AddVertex(m.getPos(), UtilsMath.MulVertex(m.getAddToPos(), (float)EngineLoopThread.TPFmillis/1000)));
-            //m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
+            m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
 
+            // generate the matrixes needed
+            float[][] vMatrix_RotZ = UtilsMath.getRotationMatrix_Z(m.getRot().getZ());
+            float[][] vMatrix_RotY = UtilsMath.getRotationMatrix_Y(m.getRot().getY());
+            float[][] vMatrix_RotX = UtilsMath.getRotationMatrix_X(m.getRot().getX());
+            float[][] vMatrix_Tra = UtilsMath.getTranslationMatrix(
+                    m.getPos().getX(),
+                    m.getPos().getY(),
+                    m.getPos().getZ()
+                );
+            
+            
             for (Triangle t:m.getTris()) {
                 //t.setVisible(true);
-                // 1. VERTEX CALCULATIONS ______________________________________
                 
+                // 1. VERTEX CALCULATIONS ______________________________________
                 for (int vIndex=0; vIndex<3; vIndex++) {
-
                     // we are just gonna modify "vProcess" atribute as vertex transforms
                     UtilsMath.CopyVertexValues(t.getVList(vIndex), t.getVProcess(vIndex));
                     //System.out.println("Original: " + t.getVProcess()[vIndex].toString());
 
-                    // now we can just calculate from and for vProcess
-
-                    // VERTEX PROCESS ______________________________________________________
-                    // [1] origin-translation-matrix (vertex process) -> vMatrix_TraOrigin
-                    // ---> por ahora sudamos <---
-
-                    // [2] rotZ vertex matrix -> vMatrix_RotZ - - - - - - - - - 
-                    float[][] vMatrix_RotZ = UtilsMath.getRotationMatrix_Z(m.getRot().getZ());
+                    // rotations
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_RotZ), vIndex);
-                    
-                    // [3] rotY vertex matrix -> vMatrix_RotY - - - - - - - - - 
-                    float[][] vMatrix_RotY = UtilsMath.getRotationMatrix_Y(m.getRot().getY());
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_RotY), vIndex);
-                    
-                    // [4] rotX vertex matrix -> vMatrix_RotX - - - - - - - - - 
-                    float[][] vMatrix_RotX = UtilsMath.getRotationMatrix_X(m.getRot().getX());
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_RotX), vIndex);
-                    
-                    // [5] translation vertex matrix -> vMatrix_Tra - - - - - - 
-                    float[][] vMatrix_Tra = UtilsMath.getTranslationMatrix(
-                            m.getPos().getX(),
-                            m.getPos().getY(),
-                            m.getPos().getZ()
-                        );
+                    // translation
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_Tra), vIndex);
                 
                 }
                 // we got the new vertex data (after rotations, etc.)
                 t.calculateVNormal();
-                    
-                for (int vIndex=0; vIndex<3; vIndex++) {                    
-                    // CAMERA PROCESS ______________________________________________________
-                    
-                    // [9] translation camera matrix -> cMatrix_Tra - - - - - - 
-                    float[][] cMatrix_Tra = CameraModel.translationMatrix;
+                t.calculateDepthValue();
+                
+                // 2. CAMERA CALCULATIONS ______________________________________
+                for (int vIndex=0; vIndex<3; vIndex++) {
+                    // camera translation 
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Tra), vIndex);
                     //System.out.println("Camera translation: " + t.getVProcess()[vIndex].toString());
-                    
-                    // [6] rotZ camera matrix -> cMatrix_RotZ - - - - - - - - - 
-                    float[][] cMatrix_RotZ = UtilsMath.getRotationMatrix_Z(EngineController.camera.getRot().getZ());
+                    // camera rotations
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotZ), vIndex);
-                    // [7] rotY camera matrix -> cMatrix_RotY - - - - - - - - - 
-                    float[][] cMatrix_RotY = UtilsMath.getRotationMatrix_Y(EngineController.camera.getRot().getY());
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotY), vIndex);
-                    // [8] rotX camera matrix -> cMatrix_RotX - - - - - - - - - 
-                    float[][] cMatrix_RotX = UtilsMath.getRotationMatrix_X(EngineController.camera.getRot().getX());
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotX), vIndex);
                     
                     // CAMERA PROJECTION + RENDERING _______________________________________
                     // [10] camera projection matrix -> cMatrix_Proj - - - - - -
-                    float[][] cMatrix_Proj = CameraModel.projectionMatrix;
                     t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Proj), vIndex);
                     //System.out.println("Camera projection: " + t.getVProcess()[vIndex].toString());
 
                     // [11] camera perspective -> cMatrix_Persp - - - - - - - - 
-                    
-                    // we will copy the values to vProjection now that the
-                    // transformations are finished.
-                    //UtilsMath.CopyVertexValues(t.getVProcess(vIndex), t.getVProjection(vIndex));  // ESTO ANTES NO ESTABA COMENTADO
-                    
-                    
                     /*
                     float[][] cMatrix_Persp = new float[][] {
                         {1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f, 0.0f},
@@ -296,19 +285,19 @@ public class EngineController implements KeyListener {
                 // 2. CALCULATE TRIANGLE/FACES DATA ____________________________
                 //t.calculateDepthValue();
                 t.calculateLightingValue();
-                System.out.println(t.getLightingValue());
+                //System.out.println(t.getLightingValue());
                 t.setVisible(true);
                 //if (t.isVisible()) t.checkIfVisible();
                 t.checkIfBehindCamera();
                 //if (t.isVisible()) t.checkIfFacingCamera();
-                    
-                //System.out.println("Triangle!\n__________________________________________");                
+                
+                //t.calculateDepthValue();
+                //System.out.println("Triangle!\n__________________________________________");
             }
             
-            //m.sortTrianglesInDepth();
+            m.sortTrianglesInDepth();
             //System.out.println("Mesh!\n____________________________________________________________");                
         }
-        
         
         // F. REPAINT
         this.engineView.repaint();
@@ -481,22 +470,29 @@ public class EngineController implements KeyListener {
     
     public void resetEngineAndScene() {
         System.out.print("1. Pausing thread loop...");
-        this.loopIsOn = false;
-        this.mainLoop.interrupt();
-        this.mainLoop = null;
+        this.stopMainLoop();
         System.out.println(" done!");
 
         System.out.print("2. Stopping current scene...");
-        this.stop();
+        this.closeScene();
         System.out.println(" done!");
 
         System.out.print("3. Reading object file...");
         this.scene = this.fileController.readObjectFile();
-        System.out.println(" done!");
+        if (!isNull(this.scene)) {
+            System.out.println(" done!");
 
-        System.out.print("4. Resuming main loop...");
-        this.init();
-        this.startLoop();
-        System.out.println(" done!");
+            System.out.print("4. Resuming main loop...");
+            this.init();
+            this.startLoop();
+            System.out.println(" done!");
+            
+        } else {
+            
+            this.stopMainLoop();
+            if (!isNull(this.scene)) this.closeScene();
+            System.out.println(" done!");
+            this.exitEngine();
+        }
     }
 }

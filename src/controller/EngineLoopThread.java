@@ -26,22 +26,28 @@ public class EngineLoopThread extends Thread {
         //System.out.println("Engine loop starts now!");
         double lastCheckedTime = System.currentTimeMillis();
         
-        while(this.controller.isLoopOn()) {
-            EngineLoopThread.elapsedTime = System.currentTimeMillis() - lastCheckedTime;
-            //System.out.println("Elapsed Time: "+EngineLoopThread.elapsedTime);
-            
-            if (EngineLoopThread.elapsedTime >= TPFmillis) {
-                EngineLoopThread.nFramesLoop++;
-                lastCheckedTime = System.currentTimeMillis();
-                EngineLoopThread.frameCount++;
-                //System.out.println("Frame!");
-                
-                if (EngineLoopThread.nFramesLoop >= EngineLoopThread.FPS) {
-                    //System.out.println("Second!");
-                    EngineLoopThread.nFramesLoop = 0;
+        try {
+            while(this.controller.isLoopOn()) {
+                EngineLoopThread.elapsedTime = System.currentTimeMillis() - lastCheckedTime;
+                //System.out.println("Elapsed Time: "+EngineLoopThread.elapsedTime);
+
+                if (EngineLoopThread.elapsedTime >= TPFmillis) {
+                    EngineLoopThread.nFramesLoop++;
+                    lastCheckedTime = System.currentTimeMillis();
+                    EngineLoopThread.frameCount++;
+                    //System.out.println("Frame!");
+
+                    if (EngineLoopThread.nFramesLoop >= EngineLoopThread.FPS) {
+                        //System.out.println("Second!");
+                        EngineLoopThread.nFramesLoop = 0;
+                    }
+                    this.controller.loopFunction();
                 }
-                this.controller.loopFunction();
             }
+        
+        } catch(Exception e) {
+            //e.printStackTrace();
+            System.out.println("Couldn't run the loop!");
         }
     }
 }

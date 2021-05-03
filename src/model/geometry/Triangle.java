@@ -188,10 +188,33 @@ public class Triangle {
     }
     
     public void calculateDepthValue() {
-        this.depthValue =
-                (this.vProjection[0].getZ() + 
+        /*      
+        // median value
+        float x = (this.vProcess[0].getX() + 
+                this.vProcess[1].getX() +
+                this.vProcess[2].getX()) / 3;
+        float y = (this.vProcess[0].getY() + 
+                this.vProcess[1].getY() +
+                this.vProcess[2].getY()) / 3;
+        float z = (this.vProcess[0].getZ() + 
+                this.vProcess[1].getZ() +
+                this.vProcess[2].getZ()) / 3;
+        Vertex vToCamera = new Vertex(x,y,z);
+        this.depthValue = UtilsMath.SubVertex(EngineController.camera.getPos(), vToCamera).getLength();
+        */
+        this.depthValue =(this.vProjection[0].getZ() + 
                 this.vProjection[1].getZ() +
                 this.vProjection[2].getZ()) / 3;
+        
+        // value closer to the camera
+        /*
+        this.depthValue =
+                Math.min(
+                    Math.min(
+                        this.vProjection[0].getZ(), 
+                        this.vProjection[1].getZ()),
+                this.vProjection[2].getZ());
+        */
     }
     
     public void calculateVNormal() {
@@ -249,8 +272,9 @@ public class Triangle {
     public void calculateLightingValue() {
         // we calculate the Dot Product of every T with the scene light
         this.lightingValue = UtilsMath.DotProduct(this.vNormal, EngineController.lightDirection);
+        this.lightingValue = (this.lightingValue - 1f) / 2f;   // so we restrict lighting value from -1 to 0.
+        this.lightingValue = Math.abs(this.lightingValue);
         this.lightingValue = Math.max(.1f, this.lightingValue);
-        this.lightingValue = (this.lightingValue + 1f) / 2f;   // so we restrict lighting value from 0 to 1.
     }
     
     
