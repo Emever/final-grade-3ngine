@@ -175,7 +175,7 @@ public class EngineController implements KeyListener {
             
             // we apply the mesh rotation increments to its angle
             m.setPos(UtilsMath.AddVertex(m.getPos(), UtilsMath.MulVertex(m.getAddToPos(), (float)EngineLoopThread.TPFmillis/1000)));
-            m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
+            //m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
 
             // generate the matrixes needed
             float[][] vMatrix_RotZ = UtilsMath.getRotationMatrix_Z(m.getRot().getZ());
@@ -186,13 +186,23 @@ public class EngineController implements KeyListener {
                     m.getPos().getY(),
                     m.getPos().getZ()
                 );
-            
+            float[][] vMatrix_MeshTransform = UtilsMath.MultiplyMatrixMatrix(
+                vMatrix_Tra,
+                UtilsMath.MultiplyMatrixMatrix(
+                        vMatrix_RotX,
+                        UtilsMath.MultiplyMatrixMatrix(
+                                vMatrix_RotZ,
+                                vMatrix_RotY
+                            )
+                        )
+                    );
             
             for (Triangle t:m.getTris()) {
                 //t.setVisible(true);
                 
                 // 1. VERTEX CALCULATIONS ______________________________________
                 for (int vIndex=0; vIndex<3; vIndex++) {
+                    /*
                     // we are just gonna modify "vProcess" atribute as vertex transforms
                     UtilsMath.CopyVertexValues(t.getVList(vIndex), t.getVProcess(vIndex));
                     //System.out.println("Original: " + t.getVProcess()[vIndex].toString());
@@ -203,93 +213,100 @@ public class EngineController implements KeyListener {
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_RotX), vIndex);
                     // translation
                     t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, vMatrix_Tra), vIndex);
+                    */
+                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVList(vIndex), null, vMatrix_MeshTransform), vIndex);
                 
                 }
+                
                 // we got the new vertex data (after rotations, etc.)
                 t.calculateVNormal();
                 t.calculateDepthValue();
+                t.checkIfFacingCamera();
                 
-                // 2. CAMERA CALCULATIONS ______________________________________
-                for (int vIndex=0; vIndex<3; vIndex++) {
-                    // camera translation 
-                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Tra), vIndex);
-                    //System.out.println("Camera translation: " + t.getVProcess()[vIndex].toString());
-                    // camera rotations
-                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotZ), vIndex);
-                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotY), vIndex);
-                    t.setVProcess(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_RotX), vIndex);
+                if (t.isVisible()) {
                     
-                    // CAMERA PROJECTION + RENDERING _______________________________________
-                    // [10] camera projection matrix -> cMatrix_Proj - - - - - -
-                    t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Proj), vIndex);
-                    //System.out.println("Camera projection: " + t.getVProcess()[vIndex].toString());
+                    // 2. CAMERA CALCULATIONS ______________________________________
+                    for (int vIndex=0; vIndex<3; vIndex++) {
+                        // camera translation 
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Tra), vIndex);
+                        //System.out.println("Camera translation: " + t.getVProcess()[vIndex].toString());
+                        // camera rotations
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_RotZ), vIndex);
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_RotY), vIndex);
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_RotX), vIndex);
 
-                    // [11] camera perspective -> cMatrix_Persp - - - - - - - - 
-                    /*
-                    float[][] cMatrix_Persp = new float[][] {
-                        {1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f, 0.0f},
-                        {0.0f, 1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f},
-                        {0.0f, 0.0f, 1.0f, 0.0f},
-                        {0.0f, 0.0f, 0.0f, 1.0f}
-                    };
-                    t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_Persp), vIndex);
-                    */
-                    // theoretically this is the same...
-                    float xWithPerspective = 0.0f, yWithPerspective = 0.0f;
-                    
-                    if (t.getVProcess(vIndex).getX() != 0.0f) {
-                        if (t.getVProjection(vIndex).getZ() > 0f)
+                        // CAMERA PROJECTION + RENDERING _______________________________________
+                        // [10] camera projection matrix -> cMatrix_Proj - - - - - -
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_Proj), vIndex);
+                        //System.out.println("Camera projection: " + t.getVProcess()[vIndex].toString());
+
+                        // [11] camera perspective -> cMatrix_Persp - - - - - - - - 
+                        /*
+                        float[][] cMatrix_Persp = new float[][] {
+                            {1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f, 0.0f},
+                            {0.0f, 1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f},
+                            {0.0f, 0.0f, 1.0f, 0.0f},
+                            {0.0f, 0.0f, 0.0f, 1.0f}
+                        };
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_Persp), vIndex);
+                        */
+                        // theoretically this is the same...
+                        float xWithPerspective = 0.0f, yWithPerspective = 0.0f;
+
+                        if (t.getVProcess(vIndex).getX() != 0.0f) {
+                            if (t.getVProjection(vIndex).getZ() > 0f)
+                                xWithPerspective = t.getVProjection(vIndex).getX()/Math.abs(t.getVProjection(vIndex).getZ());
+                            else
+                                xWithPerspective = 0f;
                             xWithPerspective = t.getVProjection(vIndex).getX()/Math.abs(t.getVProjection(vIndex).getZ());
-                        else
-                            xWithPerspective = 0f;
-                        xWithPerspective = t.getVProjection(vIndex).getX()/Math.abs(t.getVProjection(vIndex).getZ());
-                    }
-                    if (t.getVProcess(vIndex).getY() != 0.0f) {
-                        if (t.getVProjection(vIndex).getZ() > 0f)
+                        }
+                        if (t.getVProcess(vIndex).getY() != 0.0f) {
+                            if (t.getVProjection(vIndex).getZ() > 0f)
+                                yWithPerspective = t.getVProjection(vIndex).getY()/Math.abs(t.getVProjection(vIndex).getZ());
+                            else
+                                yWithPerspective = 0f;
                             yWithPerspective = t.getVProjection(vIndex).getY()/Math.abs(t.getVProjection(vIndex).getZ());
-                        else
-                            yWithPerspective = 0f;
-                        yWithPerspective = t.getVProjection(vIndex).getY()/Math.abs(t.getVProjection(vIndex).getZ());
+                        }
+                        t.getVProjection(vIndex).setX(xWithPerspective);
+                        t.getVProjection(vIndex).setY(yWithPerspective);
+
+
+                        // [12] scaling to view -> cMatrix_toView - - - - - - - - - 
+                        /*
+                        if (t.getVProjection(vIndex).getZ() < 0f) {
+                            t.getVProjection(vIndex).setX(-1f*t.getVProjection(vIndex).getX());
+                            t.getVProjection(vIndex).setY(-1f*t.getVProjection(vIndex).getY());
+                        }
+                        */
+
+                        float[][] cMatrix_toView = new float[][]
+                        {
+                            {1.0f, 0.0f, 0.0f, ((float)EngineModel.dimX)/2},
+                            {0.0f, -1.0f, 0.0f, ((float)EngineModel.dimY)/2},
+                            {0.0f, 0.0f, 1.0f, 0.0f},
+                            {0.0f, 0.0f, 0.0f, 1.0f}
+                        };
+                        /*
+                        if (t.getVProjection(vIndex).getZ() < 0f) {
+                            t.getVProjection(vIndex).setX(-1f*t.getVProjection(vIndex).getX());
+                            t.getVProjection(vIndex).setY(-1f*t.getVProjection(vIndex).getY());
+                        }
+                        */
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_toView), vIndex);
+
+                        //t.getVProjection(vIndex).scaleToView();
+                        //System.out.println("Vertex: " + t.getVProjection(vIndex).toString() + "\n________________________");
                     }
-                    t.getVProjection(vIndex).setX(xWithPerspective);
-                    t.getVProjection(vIndex).setY(yWithPerspective);
-                    
-                    
-                    // [12] scaling to view -> cMatrix_toView - - - - - - - - - 
-                    /*
-                    if (t.getVProjection(vIndex).getZ() < 0f) {
-                        t.getVProjection(vIndex).setX(-1f*t.getVProjection(vIndex).getX());
-                        t.getVProjection(vIndex).setY(-1f*t.getVProjection(vIndex).getY());
-                    }
-                    */
-                    
-                    float[][] cMatrix_toView = new float[][]
-                    {
-                        {1.0f, 0.0f, 0.0f, ((float)EngineModel.dimX)/2},
-                        {0.0f, -1.0f, 0.0f, ((float)EngineModel.dimY)/2},
-                        {0.0f, 0.0f, 1.0f, 0.0f},
-                        {0.0f, 0.0f, 0.0f, 1.0f}
-                    };
-                    /*
-                    if (t.getVProjection(vIndex).getZ() < 0f) {
-                        t.getVProjection(vIndex).setX(-1f*t.getVProjection(vIndex).getX());
-                        t.getVProjection(vIndex).setY(-1f*t.getVProjection(vIndex).getY());
-                    }
-                    */
-                    t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_toView), vIndex);
-                    
-                    //t.getVProjection(vIndex).scaleToView();
-                    //System.out.println("Vertex: " + t.getVProjection(vIndex).toString() + "\n________________________");
-                }
                 
-                // 2. CALCULATE TRIANGLE/FACES DATA ____________________________
-                //t.calculateDepthValue();
-                t.calculateLightingValue();
-                //System.out.println(t.getLightingValue());
-                t.setVisible(true);
-                //if (t.isVisible()) t.checkIfVisible();
-                t.checkIfBehindCamera();
-                //if (t.isVisible()) t.checkIfFacingCamera();
+                    // 2. CALCULATE TRIANGLE/FACES DATA ____________________________
+                    //t.calculateDepthValue();
+                    t.calculateLightingValue();
+                    //System.out.println(t.getLightingValue());
+                    t.setVisible(true);
+                    //if (t.isVisible()) t.checkIfVisible();
+                    t.checkIfBehindCamera();
+                
+                }
                 
                 //t.calculateDepthValue();
                 //System.out.println("Triangle!\n__________________________________________");

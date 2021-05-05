@@ -4,11 +4,14 @@ import controller.EngineController;
 import controller.EngineLoopThread;
 import javax.swing.JComponent;
 import javax.swing.JFrame;import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import model.*;
 import model.geometry.*;
 
@@ -20,7 +23,10 @@ public class EngineView extends JComponent {
     private EngineController engineController;
     
     private JFrame window;
-    private Graphics2D g2;
+    private Graphics g;
+    
+    private Image offscreenImg;    // double buffering process
+    private Graphics offscreenG;
     
     public EngineView(EngineController controller) {
         this.engineController = controller;
@@ -37,6 +43,9 @@ public class EngineView extends JComponent {
         
         this.window.add(this);
         
+        // we create the image that won't be rendered until the 2xBuffer is done
+        //this.offscreen = createImage(EngineModel.dimX, EngineModel.dimY); // new
+        //this.g2 = this.offscreen.getGraphics(); // new
     }
     
     @Override
@@ -51,25 +60,43 @@ public class EngineView extends JComponent {
     public void updateTitle(String newTitle) {
         this.window.setTitle(this.window.getTitle() + " - " + newTitle);
     }
+    /*
+    public void paint(Graphics g) {
+        this.offscreenImg = createImage(
+                EngineModel.dimX,
+                EngineModel.dimY
+            );
+        this.offscreenG = this.offscreenImg.getGraphics();
+        
+        this.paintOffscreen(this.offscreenG); // now "paint"
+        
+        //flip
+        g.drawImage(this.offscreenImg, 0, 0, this);
+        //System.out.println("In here!");
+    }
+    */
     
     @Override
     public void paint(Graphics g) {
-        this.g2 = (Graphics2D) g;
+        this.g = (Graphics2D) g;
+        g.clearRect(0, 0, EngineModel.dimX, EngineModel.dimY);
+        //this.g2 = (Graphics2D)this.offscreenImg.getGraphics(); // new
+        
         
         //System.out.println("Paint starts _________");
-        Shape background = new Rectangle2D.Float(0,0, EngineModel.dimX, EngineModel.dimY);
-        this.g2.setColor(Color.DARK_GRAY);
-        this.g2.fill(background);
+        //Shape background = new Rectangle2D.Float(0,0, EngineModel.dimX, EngineModel.dimY);
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(0, 0, EngineModel.dimX, EngineModel.dimY);
         
         //Show the frames ratio
-        this.g2.setColor(Color.YELLOW);
-        this.g2.setFont(new Font("Serif", Font.PLAIN, 12));
-        this.g2.drawString(EngineLoopThread.nFramesLoop+" fps", 10, 20);
+        g.setColor(Color.YELLOW);
+        g.setFont(new Font("Serif", Font.PLAIN, 12));
+        g.drawString(EngineLoopThread.nFramesLoop+" fps", 10, 20);
         
         //Show the elapsed time
-        this.g2.setColor(Color.CYAN);
-        this.g2.setFont(new Font("Serif", Font.PLAIN, 12));
-        this.g2.drawString((int)EngineLoopThread.elapsedTime+" ms", 10, 36);
+        g.setColor(Color.CYAN);
+        g.setFont(new Font("Serif", Font.PLAIN, 12));
+        g.drawString((int)EngineLoopThread.elapsedTime+" ms", 10, 36);
         
         // we draw all the triangles from every mesh of the scene
         //System.out.print("Drawing meshes...");
@@ -78,18 +105,19 @@ public class EngineView extends JComponent {
                 if (t.isVisible())
                     this.drawTriangle(t);
         
+        //this.repaint();
         //System.out.println(" done!");
     }
     
     public void drawTriangle(Triangle t) {
         // draw the triangles of every mesh into the screen
         
-        this.g2.setColor(new Color(
+        g.setColor(new Color(
             t.getLightingValue(),
             t.getLightingValue(),
             t.getLightingValue())
         );
-        this.g2.fillPolygon(
+        g.fillPolygon(
             new int[] {
                 (int)t.getVProjection(0).getX(),
                 (int)t.getVProjection(1).getX(),
@@ -103,8 +131,8 @@ public class EngineView extends JComponent {
             3   // n vertexes
         );
         
-        this.g2.setColor(Color.CYAN);
-        this.g2.drawPolygon(
+        g.setColor(Color.CYAN);
+        g.drawPolygon(
             new int[] {
                 (int)t.getVProjection(0).getX(),
                 (int)t.getVProjection(1).getX(),
@@ -117,5 +145,6 @@ public class EngineView extends JComponent {
             },
             3   // n vertexes
         );
+        
     }
 }

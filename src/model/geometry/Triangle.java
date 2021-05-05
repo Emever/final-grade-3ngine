@@ -172,13 +172,12 @@ public class Triangle {
         
         //System.out.println("vProcess " + this.vProcess[0].toString());
         //System.out.println("cameraDir" + EngineController.camera.getvDir().toString());
-        //Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
+        Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
         //cameraRay.normalize();
         //System.out.println("cameraRay" + cameraRay.toString());
-        float dotProduct = UtilsMath.DotProduct(this.vNormal, EngineController.camera.getvDir());
-        this.visible = dotProduct < 0.75f;
-        System.out.println("camVDir: " + EngineController.camera.getvDir().toString());
-        System.out.println("vNormal: " + this.vNormal.toString() + " -> dot product: " + String.format("%.2f", dotProduct));
+        this.visible = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0f;
+        //System.out.println("camVDir: " + EngineController.camera.getvDir().toString());
+        //System.out.println("vNormal: " + this.vNormal.toString() + " -> dot product: " + String.format("%.2f", dotProduct));
         //System.out.println("________________________________\n");
         
         
