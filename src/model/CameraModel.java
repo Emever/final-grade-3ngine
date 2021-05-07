@@ -72,6 +72,13 @@ public class CameraModel {
     public void setvRight(Vertex vRight) {
         this.vRight = vRight;
     }
+    public Vertex getVUp() {
+        return vUp;
+    }
+    public void setVUp(Vertex vUp) {
+        this.vUp = vUp;
+    }
+    
     
     
     

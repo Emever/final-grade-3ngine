@@ -126,30 +126,30 @@ public class EngineController implements KeyListener {
     
     private Mesh createTestCube() {
         Mesh cube = new Mesh("cube", new Vertex(0.0f, 0.0f, 0.0f));
-        /*
+        /**/
         // SOUTH
-        cube.addTriangle(new Vertex(0f,0f,0f),new Vertex(0f,1f,0f),new Vertex(1f,1f,0f));
-        cube.addTriangle(new Vertex(0f,0f,0f),new Vertex(1f,1f,0f),new Vertex(1f,0f,0f));
+        cube.addTriangle(new Vertex(-1f,-1f,-1f),new Vertex(-1f,1f,-1f),new Vertex(1f,1f,-1f));
+        cube.addTriangle(new Vertex(-1f,-1f,-1f),new Vertex(1f,1f,-1f),new Vertex(1f,-1f,-1f));
         
         // EAST
-        cube.addTriangle(new Vertex(1f,0f,0f),new Vertex(1f,1f,0f),new Vertex(1f,1f,1f));
-        cube.addTriangle(new Vertex(1f,0f,0f),new Vertex(1f,1f,1f),new Vertex(1f,0f,1f));
+        cube.addTriangle(new Vertex(1f,-1f,-1f),new Vertex(1f,1f,-1f),new Vertex(1f,1f,1f));
+        cube.addTriangle(new Vertex(1f,-1f,-1f),new Vertex(1f,1f,1f),new Vertex(1f,-1f,1f));
         
         // WEST
-        cube.addTriangle(new Vertex(0f,0f,1f),new Vertex(0f,1f,1f),new Vertex(0f,1f,0f));
-        cube.addTriangle(new Vertex(0f,0f,1f),new Vertex(0f,1f,0f),new Vertex(0f,0f,0f));
+        cube.addTriangle(new Vertex(-1f,-1f,1f),new Vertex(-1f,1f,1f),new Vertex(-1f,1f,-1f));
+        cube.addTriangle(new Vertex(-1f,-1f,1f),new Vertex(-1f,1f,-1f),new Vertex(-1f,-1f,-1f));
         /**/
         // NORTH
-        cube.addTriangle(new Vertex(1f,0f,1f),new Vertex(1f,1f,1f),new Vertex(0f,1f,1f));
-        cube.addTriangle(new Vertex(1f,0f,1f),new Vertex(0f,1f,1f),new Vertex(0f,0f,1f));
-        /*
+        cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(1f,1f,1f),new Vertex(-1f,1f,1f));
+        cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(-1f,1f,1f),new Vertex(-1f,-1f,1f));
+        /**/
         // TOP
-        cube.addTriangle(new Vertex(0f,1f,0f),new Vertex(0f,1f,1f),new Vertex(1f,1f,1f));
-        cube.addTriangle(new Vertex(0f,1f,0f),new Vertex(1f,1f,1f),new Vertex(1f,1f,0f));
+        cube.addTriangle(new Vertex(-1f,1f,-1f),new Vertex(-1f,1f,1f),new Vertex(1f,1f,1f));
+        cube.addTriangle(new Vertex(-1f,1f,-1f),new Vertex(1f,1f,1f),new Vertex(1f,1f,-1f));
         
         // BOT
-        cube.addTriangle(new Vertex(1f,0f,1f),new Vertex(0f,0f,1f),new Vertex(0f,0f,0f));
-        cube.addTriangle(new Vertex(1f,0f,1f),new Vertex(0f,0f,0f),new Vertex(1f,0f,0f));
+        cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(-1f,-1f,1f),new Vertex(-1f,-1f,-1f));
+        cube.addTriangle(new Vertex(1f,-1f,1f),new Vertex(-1f,-1f,-1f),new Vertex(1f,-1f,-1f));
         /**/
         return cube;
     }
@@ -179,15 +179,29 @@ public class EngineController implements KeyListener {
                             )
                         )
                     );
-            // 3.2. camera projection matrix
+            // 3.2. camera projection matrix and scaling to view
         float[][] cMatrix_Proj = CameraModel.projectionMatrix;
+        float[][] cMatrix_ScaleToView = new float[][]
+            {
+                {1.0f, 0.0f, 0.0f, ((float)EngineModel.dimX)/2},
+                {0.0f, -1.0f, 0.0f, ((float)EngineModel.dimY)/2},
+                {0.0f, 0.0f, 1.0f, 0.0f},
+                {0.0f, 0.0f, 0.0f, 1.0f}
+            };
+        
+        // NEW PROJECTION AND CAMERA TRANSFORMATIONS LIKE LONECODER - - - - - - -
+        /*
+        Vertex vTarget = UtilsMath.AddVertex(EngineController.camera.getPos(), EngineController.camera.getvDir());
+        float[][] cMatrix_PointAt = UtilsMath.getMatrix_PointAt(EngineController.camera.getPos(), vTarget, EngineController.camera.getVUp());
+        float[][] cMatrix_View = UtilsMath.MatrixQuickInverse(cMatrix_PointAt);
+        */
         
         // ______________________________________________________ VERTEX PROCESS
         for (Mesh m:this.scene.getMeshList()) {
             
             // we apply the mesh rotation increments to its angle
             m.setPos(UtilsMath.AddVertex(m.getPos(), UtilsMath.MulVertex(m.getAddToPos(), (float)EngineLoopThread.TPFmillis/1000)));
-            //m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
+            m.setRot(UtilsMath.AddVertex(m.getRot(), UtilsMath.MulVertex(m.getAddToRot(), (float)EngineLoopThread.TPFmillis/1000)));
 
             // generate the matrixes needed
             float[][] vMatrix_RotZ = UtilsMath.getRotationMatrix_Z(m.getRot().getZ());
@@ -232,10 +246,9 @@ public class EngineController implements KeyListener {
                 
                 // we got the new vertex data (after rotations, etc.)
                 t.calculateVNormal();
-                t.calculateDepthValue();
-                t.setVisible(true);
-                //t.checkIfFacingCamera();
-
+                //t.setVisible(true);
+                t.checkIfFacingCamera();
+                
                 
                 if (t.isVisible()) {
                     t.calculateLightingValue();
@@ -250,9 +263,9 @@ public class EngineController implements KeyListener {
                         t.setVView(UtilsMath.MultiplyMatrixVector(t.getVView(vIndex), null, cMatrix_RotZ), vIndex);
                         t.setVView(UtilsMath.MultiplyMatrixVector(t.getVView(vIndex), null, cMatrix_RotY), vIndex);
                         t.setVView(UtilsMath.MultiplyMatrixVector(t.getVView(vIndex), null, cMatrix_RotX), vIndex);
-                        
                         */
-                        t.setVView(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Transform), vIndex);
+                        t.setVView(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Transform), vIndex); // NEW V1
+                                                
                         
                         // CAMERA PROJECTION + RENDERING _______________________
                         // [10] camera projection matrix -> cMatrix_Proj - - - - - -
@@ -260,69 +273,46 @@ public class EngineController implements KeyListener {
                         //System.out.println("Camera projection: " + t.getVProcess()[vIndex].toString());
 
                         // [11] camera perspective -> cMatrix_Persp - - - - - - - - 
-                        /*
-                        float[][] cMatrix_Persp = new float[][] {
-                            {1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f, 0.0f},
-                            {0.0f, 1.0f/t.getVProcess(vIndex).getZ(), 0.0f, 0.0f},
-                            {0.0f, 0.0f, 1.0f, 0.0f},
-                            {0.0f, 0.0f, 0.0f, 1.0f}
-                        };
-                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_Persp), vIndex);
-                        */
-                        // theoretically this is the same...
                         float xWithPerspective = 0.0f, yWithPerspective = 0.0f;
-
-                        if (t.getVView(vIndex).getX() != 0.0f) {
+                        if (t.getVView(vIndex).getX() != 0.0f)
                             xWithPerspective = t.getVProjection(vIndex).getX()/Math.abs(t.getVProjection(vIndex).getZ());
-                        }
-                        if (t.getVView(vIndex).getY() != 0.0f) {
+                        if (t.getVView(vIndex).getY() != 0.0f)
                             yWithPerspective = t.getVProjection(vIndex).getY()/Math.abs(t.getVProjection(vIndex).getZ());
-                        }
                         t.getVProjection(vIndex).setX(xWithPerspective);
                         t.getVProjection(vIndex).setY(yWithPerspective);
-
-
-                        // [12] scaling to view -> cMatrix_toView - - - - - - - - - 
-                        /*
-                        if (t.getVProjection(vIndex).getZ() < 0f) {
-                            t.getVProjection(vIndex).setX(-1f*t.getVProjection(vIndex).getX());
-                            t.getVProjection(vIndex).setY(-1f*t.getVProjection(vIndex).getY());
-                        }
-                        */
-
-                        float[][] cMatrix_toView = new float[][]
-                        {
-                            {1.0f, 0.0f, 0.0f, ((float)EngineModel.dimX)/2},
-                            {0.0f, -1.0f, 0.0f, ((float)EngineModel.dimY)/2},
-                            {0.0f, 0.0f, 1.0f, 0.0f},
-                            {0.0f, 0.0f, 0.0f, 1.0f}
-                        };
-                        /*
-                        if (t.getVProjection(vIndex).getZ() < 0f) {
-                            t.getVProjection(vIndex).setX(-1f*t.getVProjection(vIndex).getX());
-                            t.getVProjection(vIndex).setY(-1f*t.getVProjection(vIndex).getY());
-                        }
-                        */
-                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_toView), vIndex);
-
-                        //t.getVProjection(vIndex).scaleToView();
-                        //System.out.println("Vertex: " + t.getVProjection(vIndex).toString() + "\n________________________");
+                        
+                        // [12] scaling to view -> cMatrix_toView - - - - - - - - -
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_ScaleToView), vIndex);
                     }
+                    /*
+                    System.out.println("Projection 1: " + t.getVProjection(0).toString() + "\n________________________");
+                    // IF WE USE OLD LONECODER VERSION ___________________________________
+                    for (int vIndex = 0; vIndex < 3; vIndex++) {
+                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Proj), vIndex);
+                        t.setVProjection(UtilsMath.DivVertex(t.getVProjection(vIndex),t.getVProjection(vIndex).getW()), vIndex);
+                        // X and Y are inverted
+                        t.getVProjection(vIndex).setX(t.getVProjection(vIndex).getX() * -1f);
+                        t.getVProjection(vIndex).setY(t.getVProjection(vIndex).getY() * -1f);
+                        t.getVProjection(vIndex).scaleToView();
+                    }
+                    System.out.println("Projection 2: " + t.getVProjection(0).toString() + "\n________________________");
+                    */
                 }
                 
-                //t.calculateDepthValue();
+                t.calculateDepthValue();
                 //System.out.println("Triangle!\n__________________________________________");
             }
             
-            
+            /*
             // CHIVATOS
             System.out.println("vList: " + this.getScene().getMeshList().get(0).getTriangle(1).getVList(2).toString());
             System.out.println("vProc: " + this.getScene().getMeshList().get(0).getTriangle(1).getVProcess(2).toString());
             System.out.println("vView: " + this.getScene().getMeshList().get(0).getTriangle(1).getVView(2).toString());
             System.out.println("vProj: " + this.getScene().getMeshList().get(0).getTriangle(1).getVProjection(2).toString());
             System.out.println("-------------\n\n");
-                
-            //m.sortTrianglesInDepth();
+            */
+            
+            m.sortTrianglesByDepth();
             //System.out.println("Mesh!\n____________________________________________________________");                
         }
         
@@ -400,6 +390,10 @@ public class EngineController implements KeyListener {
                 
             case KeyEvent.VK_CONTROL:
                 this.inputController.setInputCTRL(true);
+                break;
+                
+            case KeyEvent.VK_P:
+                System.out.println("Pause!");
                 break;
         }
     }

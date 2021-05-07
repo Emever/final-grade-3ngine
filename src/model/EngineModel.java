@@ -10,8 +10,8 @@ package model;
  * @author Joel
  */
 public class EngineModel {
-    public static final int dimX = 1280;
-    public static final int dimY = 720;
+    public static final int dimX = 960;
+    public static final int dimY = 640;
     
     public static final String title = "3ngine";
     
