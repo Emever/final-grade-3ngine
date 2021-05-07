@@ -10,13 +10,12 @@ import utils.UtilsMath;
  * @author Joel
  */
 public class Mesh {
-    private ArrayList<Triangle> tris;  // "polygons"
+    private String name;
     private Vertex rot; // rotation in radians
     private Vertex addToRot;
     private Vertex pos; // origin vertex position
     private Vertex addToPos;
-    
-    private String name;
+    private ArrayList<Triangle> tris;  // "polygons"
     
     public Mesh(String name, Vertex initPos) {
         this.tris = new ArrayList<Triangle>();
@@ -26,7 +25,7 @@ public class Mesh {
         this.addToPos = new Vertex(0.0f, 0.0f, 0.0f);
         
         this.rot = new Vertex(0.0f, 0.0f, 0.0f);
-        this.addToRot = new Vertex(UtilsMath.DegToRads(45), UtilsMath.DegToRads(5), -UtilsMath.DegToRads(15));
+        //this.addToRot = new Vertex(UtilsMath.DegToRads(45), UtilsMath.DegToRads(5), -UtilsMath.DegToRads(15));
         this.addToRot = new Vertex(0f, UtilsMath.DegToRads(45), 0f);
         //this.addToRot = new Vertex(UtilsMath.DegToRads(45), 0f, 0f);
         //this.addToRot = new Vertex(0f, 0f, UtilsMath.DegToRads(45));
