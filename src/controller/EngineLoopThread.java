@@ -26,7 +26,7 @@ public class EngineLoopThread extends Thread {
         //System.out.println("Engine loop starts now!");
         double lastCheckedTime = System.currentTimeMillis();
         
-        try {
+        //try {
             while(this.controller.isLoopOn()) {
                 EngineLoopThread.elapsedTime = System.currentTimeMillis() - lastCheckedTime;
                 //System.out.println("Elapsed Time: "+EngineLoopThread.elapsedTime);
@@ -44,10 +44,10 @@ public class EngineLoopThread extends Thread {
                     this.controller.loopFunction();
                 }
             }
-        
+        /*
         } catch(Exception e) {
             //e.printStackTrace();
             System.out.println("Couldn't run the loop!");
-        }
+        }*/
     }
 }

@@ -102,8 +102,7 @@ public class EngineView extends JComponent {
         //System.out.print("Drawing meshes...");
         for (Mesh m:this.engineController.getScene().getMeshList())
             for (Triangle t:m.getTris()) // -> every triangle from every mesh
-                if (t.isVisible())
-                    this.drawTriangle(t);
+                if (t.isVisible()) this.drawTriangle(t);
         
         //this.repaint();
         //System.out.println(" done!");

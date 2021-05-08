@@ -2,6 +2,7 @@ package model.geometry;
 
 import controller.EngineController;
 import java.util.ArrayList;
+import static java.util.Objects.isNull;
 import model.CameraModel;
 import utils.UtilsMath;
 
@@ -63,7 +64,6 @@ public class Triangle {
         }
         this.vProjection = new Vertex[3];
         for (int i=0; i<3; i++) {
-            this.vProjection[i] = new Vertex();
             this.vProjection[i] = new Vertex(source.getVProjection(i));
         }
     }
@@ -262,14 +262,18 @@ public class Triangle {
     
     // DANGER ZONE
     public void delete() {
-        for (Vertex v:this.vProjection)
-            v.delete();
-        for (Vertex v:this.vView)
-            v.delete();
-        for (Vertex v:this.vProcess)
-            v.delete();
-        for (Vertex v:this.vList)
-            v.delete();
+        if (!isNull(this.vProjection))
+            for (Vertex v:this.vProjection)
+                v.delete();
+        if (!isNull(this.vView))
+            for (Vertex v:this.vView)
+                v.delete();
+        if (!isNull(this.vProcess))
+            for (Vertex v:this.vProcess)
+                v.delete();
+        if (!isNull(this.vList))
+            for (Vertex v:this.vList)
+                v.delete();
         this.lightingValue = 0;
         this.vProjection = null;
         this.vView = null;

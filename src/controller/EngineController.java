@@ -226,7 +226,7 @@ public class EngineController implements KeyListener {
             for (Triangle t:m.getTris()) {
                 //t.setVisible(true);
                 
-                // 1. VERTEX CALCULATIONS ______________________________________
+                // 1. VERTEX CALCULATIONS - - - - - - - - - - - - - - - - - - - -
                 for (int vIndex=0; vIndex<3; vIndex++) {
                     /*
                     // we are just gonna modify "vProcess" atribute as vertex transforms
@@ -248,11 +248,11 @@ public class EngineController implements KeyListener {
                 t.calculateVNormal();
                 //t.setVisible(true);
                 t.checkIfFacingCamera();
-                
-                
-                if (t.isVisible()) {
+            
+                // __________________________________________________ CAMERA PROCESS
+                if (t.isVisible()) {  // not needed, as every triangle here is visible
                     t.calculateLightingValue();
-                    
+
                     // 2. CAMERA VIEW CALCULATIONS _____________________________
                     for (int vIndex=0; vIndex<3; vIndex++) {
                         /*
@@ -265,8 +265,8 @@ public class EngineController implements KeyListener {
                         t.setVView(UtilsMath.MultiplyMatrixVector(t.getVView(vIndex), null, cMatrix_RotX), vIndex);
                         */
                         t.setVView(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Transform), vIndex); // NEW V1
-                                                
-                        
+
+
                         // CAMERA PROJECTION + RENDERING _______________________
                         // [10] camera projection matrix -> cMatrix_Proj - - - - - -
                         t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVView(vIndex), null, cMatrix_Proj), vIndex);
@@ -280,10 +280,11 @@ public class EngineController implements KeyListener {
                             yWithPerspective = t.getVProjection(vIndex).getY()/Math.abs(t.getVProjection(vIndex).getZ());
                         t.getVProjection(vIndex).setX(xWithPerspective);
                         t.getVProjection(vIndex).setY(yWithPerspective);
-                        
+
                         // [12] scaling to view -> cMatrix_toView - - - - - - - - -
                         t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_ScaleToView), vIndex);
                     }
+                    
                     /*
                     System.out.println("Projection 1: " + t.getVProjection(0).toString() + "\n________________________");
                     // IF WE USE OLD LONECODER VERSION ___________________________________
