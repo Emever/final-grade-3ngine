@@ -18,11 +18,14 @@ public class CameraModel {
     private float moveSpeed;
     private Vertex rot; // radians
     private Vertex rotSpeed;  // radians
+    
     public static final float maxPitch = -(float)Math.PI/2 + 0.1f;
     public static final float minPitch = (float)Math.PI/2 - 0.1f;
     private Vertex vDir;
     private Vertex vRight, vUp;
     
+    public static Vertex cameraPlane;
+    public static Vertex cameraPlaneNormal;
     
     //public static float fTheta;
     public static float[][] projectionMatrix;
@@ -36,6 +39,9 @@ public class CameraModel {
         
         this.rot = new Vertex(0.0f, 0.0f, 0.0f);
         this.rotSpeed = new Vertex(UtilsMath.DegToRads(60), UtilsMath.DegToRads(90), 0.0f);
+        
+        CameraModel.cameraPlane = new Vertex(0f,0f,-0.1f);
+        CameraModel.cameraPlaneNormal = new Vertex(0f,0f,1f);
         
         this.vDir = new Vertex(0.0f, 0.0f, 0.0f);
         this.vRight = new Vertex(0.0f, 0.0f, 0.0f);

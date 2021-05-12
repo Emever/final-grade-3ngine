@@ -100,12 +100,17 @@ public class EngineView extends JComponent {
         
         // we draw all the triangles from every mesh of the scene
         //System.out.print("Drawing meshes...");
+        /* // BEFORE
         for (Mesh m:this.engineController.getScene().getMeshList())
-            for (Triangle t:m.getTris()) // -> every triangle from every mesh
-                if (t.isVisible()) this.drawTriangle(t);
-        
-        //this.repaint();
-        //System.out.println(" done!");
+        for (Triangle t:m.getTris()) // -> every triangle from every mesh
+        if (t.isVisible()) this.drawTriangle(t);
+         */
+        this.engineController.getScene().getTrisToProject().forEach((t) -> {
+            // -> every triangle from the projection list of the scene
+            this.drawTriangle(t);
+            //this.repaint();
+            //System.out.println(" done!");
+        });
     }
     
     public void drawTriangle(Triangle t) {

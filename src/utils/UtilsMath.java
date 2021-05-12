@@ -6,6 +6,7 @@
 package utils;
 
 import controller.EngineController;
+import java.util.ArrayList;
 import static java.util.Objects.isNull;
 import model.EngineModel;
 import model.geometry.*;
@@ -242,4 +243,101 @@ public class UtilsMath {
         return vO;
     }
     
+    // clipping triangles functions
+    public static Vertex Vertex_IntersectsPlane(Vertex planeP, Vertex planeN, Vertex lineStart, Vertex lineEnd) {
+        planeN.normalize();
+        float planeD = -UtilsMath.DotProduct(planeN, planeP);
+        float ad = UtilsMath.DotProduct(lineStart, planeN);
+        float bd = UtilsMath.DotProduct(lineEnd, planeN);
+        float t = (-planeD - ad)/(bd - ad);
+        Vertex lineStartToEnd = UtilsMath.SubVertex(lineEnd, lineStart);
+        Vertex lineToIntersect = UtilsMath.MulVertex(lineStartToEnd, t);
+        return UtilsMath.AddVertex(lineStart, lineToIntersect);
+    }
+    
+    public static float Distance_FromPointToPlane(Vertex point, Vertex planeP, Vertex planeN) {
+        Vertex n = new Vertex(point);
+        n.normalize();
+        return (planeN.getX()*point.getX() + planeN.getY()*point.getY() + planeN.getZ()*point.getZ() - UtilsMath.DotProduct(planeN, planeP));
+    }
+    
+    // this function will return:
+    /*
+    NULL IF we don't have to render new triangles (plus, it will set visible to
+    false if our actual triangle lies entirely out of the screen
+    */
+    public static Triangle[] Triangle_ClipToPlane(Vertex planeP, Vertex planeN, Triangle t/*, ArrayList<Triangle> tList*/) {
+        Triangle[] tArray = new Triangle[3];
+        planeN.normalize();
+        
+        // create 2 arrays for storing our new vertexes
+        int insidePointCount = 0, outsidePointCount = 0;
+        Vertex[] insidePoints = new Vertex[3];
+        Vertex[] outsidePoints = new Vertex[3];
+        
+        // get signed distance of each point in triangle to the plane
+        float d0 = UtilsMath.Distance_FromPointToPlane(t.getVView(0), planeP, planeN);
+        float d1 = UtilsMath.Distance_FromPointToPlane(t.getVView(1), planeP, planeN);
+        float d2 = UtilsMath.Distance_FromPointToPlane(t.getVView(2), planeP, planeN);
+        
+        // add vView values of every triangle vertex to Vertex[] in/outside points
+        /*
+        if (d0 >= 0) insidePoints[insidePointCount++] = t.getVView(0);
+        else outsidePoints[outsidePointCount++] = t.getVView(0);
+        if (d1 >= 0) insidePoints[insidePointCount++] = t.getVView(1);
+        else outsidePoints[outsidePointCount++] = t.getVView(1);
+        if (d2 >= 0) insidePoints[insidePointCount++] = t.getVView(2);
+        else outsidePoints[outsidePointCount++] = t.getVView(2);
+        */
+        if (d0 < 0) insidePoints[insidePointCount++] = t.getVView(0);
+        else outsidePoints[outsidePointCount++] = t.getVView(0);
+        if (d1 < 0) insidePoints[insidePointCount++] = t.getVView(1);
+        else outsidePoints[outsidePointCount++] = t.getVView(1);
+        if (d2 < 0) insidePoints[insidePointCount++] = t.getVView(2);
+        else outsidePoints[outsidePointCount++] = t.getVView(2);
+        
+        // now we classify the triangles
+        if (insidePointCount == 0) {
+            // the entire triangle is outside of the plane, so it doesnt have to
+            // be rendered
+            t.setVisible(false); // THIS MAY CAUSE SOME ISSUES???? - - - - - - -
+        
+        } else if (insidePointCount == 3) {
+            // the entire triangle lies inside of the plane, so everything is ok
+            tArray[0] = t;
+        
+        } else if (insidePointCount == 1 && outsidePointCount == 2) {
+            // triangle should be clipped: 1 point is in, 2 are outta screen
+            Triangle newT = t;
+            // now we just need to update the points of our new triangle
+            newT.setVView(insidePoints[0], 0);
+            newT.setVView(UtilsMath.Vertex_IntersectsPlane(planeP, planeN, insidePoints[0], outsidePoints[0]), 1);
+            newT.setVView(UtilsMath.Vertex_IntersectsPlane(planeP, planeN, insidePoints[0], outsidePoints[1]), 2);
+            
+            tArray[0] = newT;
+            //tList.add(newT);
+            //t.setId(-1);    // needs to be deleted!
+        
+        } else if (insidePointCount == 2 && outsidePointCount == 1) {
+            // now the clipping will form a quad, so we have to create 2 tris.
+            Triangle newT0 = new Triangle(t);
+            Triangle newT1 = new Triangle(t);
+            // now we just need to update the points of our new first triangle
+            newT0.setVView(insidePoints[0], 0);
+            newT0.setVView(insidePoints[1], 1);
+            newT0.setVView(UtilsMath.Vertex_IntersectsPlane(planeP, planeN, insidePoints[0], outsidePoints[0]), 2);
+            // and update the points of our new second triangle
+            newT1.setVView(insidePoints[1], 0);
+            newT1.setVView(new Vertex(newT0.getVView(2)), 1);
+            newT1.setVView(UtilsMath.Vertex_IntersectsPlane(planeP, planeN, insidePoints[1], outsidePoints[0]), 2);
+            
+            tArray[0] = newT0;
+            tArray[1] = newT1;
+            //tList.add(newT0);
+            //tList.add(newT1);
+            //t.setId(-1);    // needs to be deleted!
+        }
+        
+        return tArray;
+    }
 }

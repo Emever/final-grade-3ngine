@@ -55,17 +55,15 @@ public class Triangle {
         for (int i=0; i<3; i++)
             this.vList[i] = new Vertex(source.getVList(i));
         this.vProcess = new Vertex[3];
-        for (int i=0; i<3; i++) {
+        for (int i=0; i<3; i++)
             this.vProcess[i] = new Vertex(source.getVProcess(i));
-        }
         this.vView = new Vertex[3];
-        for (int i=0; i<3; i++) {
+        for (int i=0; i<3; i++)
             this.vView[i] = new Vertex(source.getVView(i));
-        }
         this.vProjection = new Vertex[3];
-        for (int i=0; i<3; i++) {
+        for (int i=0; i<3; i++)
             this.vProjection[i] = new Vertex(source.getVProjection(i));
-        }
+        this.visible = source.isVisible();
     }
     
     // GETTERS AND SETTERS

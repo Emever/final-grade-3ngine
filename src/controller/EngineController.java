@@ -7,6 +7,7 @@ package controller;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import static java.util.Objects.isNull;
 import model.CameraModel;
 import model.EngineModel;
@@ -160,7 +161,8 @@ public class EngineController implements KeyListener {
         // 1. we check player inputs
         this.applyPlayerInput(elapsedTime);
         
-        // 2. update the camera matrixes
+        // 2. update the camera matrixes and reset triangles to project list
+        this.scene.clearProjectionList();
         EngineController.camera.update();
         
         // 3. generate the matrixes needed (optimized)
@@ -223,6 +225,10 @@ public class EngineController implements KeyListener {
                         )
                     );
             
+            
+            // additional triangle list for the clipped triangles
+            ArrayList<Triangle> trisToProject = new ArrayList<>();
+            
             for (Triangle t:m.getTris()) {
                 //t.setVisible(true);
                 
@@ -265,57 +271,84 @@ public class EngineController implements KeyListener {
                         t.setVView(UtilsMath.MultiplyMatrixVector(t.getVView(vIndex), null, cMatrix_RotX), vIndex);
                         */
                         t.setVView(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Transform), vIndex); // NEW V1
-
-
-                        // CAMERA PROJECTION + RENDERING _______________________
-                        // [10] camera projection matrix -> cMatrix_Proj - - - - - -
-                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVView(vIndex), null, cMatrix_Proj), vIndex);
-                        //System.out.println("Camera projection: " + t.getVProcess()[vIndex].toString());
-
-                        // [11] camera perspective -> cMatrix_Persp - - - - - - - - 
-                        float xWithPerspective = 0.0f, yWithPerspective = 0.0f;
-                        if (t.getVView(vIndex).getX() != 0.0f)
-                            xWithPerspective = t.getVProjection(vIndex).getX()/Math.abs(t.getVProjection(vIndex).getZ());
-                        if (t.getVView(vIndex).getY() != 0.0f)
-                            yWithPerspective = t.getVProjection(vIndex).getY()/Math.abs(t.getVProjection(vIndex).getZ());
-                        t.getVProjection(vIndex).setX(xWithPerspective);
-                        t.getVProjection(vIndex).setY(yWithPerspective);
-
-                        // [12] scaling to view -> cMatrix_toView - - - - - - - - -
-                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProjection(vIndex), null, cMatrix_ScaleToView), vIndex);
                     }
-                    
-                    /*
-                    System.out.println("Projection 1: " + t.getVProjection(0).toString() + "\n________________________");
-                    // IF WE USE OLD LONECODER VERSION ___________________________________
-                    for (int vIndex = 0; vIndex < 3; vIndex++) {
-                        t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Proj), vIndex);
-                        t.setVProjection(UtilsMath.DivVertex(t.getVProjection(vIndex),t.getVProjection(vIndex).getW()), vIndex);
-                        // X and Y are inverted
-                        t.getVProjection(vIndex).setX(t.getVProjection(vIndex).getX() * -1f);
-                        t.getVProjection(vIndex).setY(t.getVProjection(vIndex).getY() * -1f);
-                        t.getVProjection(vIndex).scaleToView();
-                    }
-                    System.out.println("Projection 2: " + t.getVProjection(0).toString() + "\n________________________");
-                    */
+                    // we call the clipping function
+                    //UtilsMath.Triangle_ClipToPlane(new Vertex(0f,0f,-0.5f), new Vertex(0f,0f,1f), t, trisToProject);
+                    Triangle[] tList = UtilsMath.Triangle_ClipToPlane(CameraModel.cameraPlane, CameraModel.cameraPlaneNormal, t);
+                    if (t.isVisible())
+                        for (Triangle tList1 : tList) {
+                            //System.out.println("Adding 1 triangle to the projection list...!");
+                            if (!isNull(tList1)) this.scene.addTriangleToProject(tList1);
+                        }
                 }
-                
-                t.calculateDepthValue();
-                //System.out.println("Triangle!\n__________________________________________");
+            }
+        }
+        
+        for (Triangle tToProject:this.scene.getTrisToProject()) {
+            /*
+            // now we need to remove the triangles that have id='-1'
+            for (int triangleIndex=m.getTris().size()-1; triangleIndex>=0; triangleIndex--) {
+                if (m.getTriangle(triangleIndex).getId() < 0)
+                    m.removeTriangle(triangleIndex);
+            }
+            // and add the new triangles to the meshlist.getTris
+            int nLoop = 0;
+            while (nLoop < trisToProject.size()) {
+                m.getTris().add(trisToProject.get(nLoop));
+                nLoop++;
             }
             
-            /*
-            // CHIVATOS
-            System.out.println("vList: " + this.getScene().getMeshList().get(0).getTriangle(1).getVList(2).toString());
-            System.out.println("vProc: " + this.getScene().getMeshList().get(0).getTriangle(1).getVProcess(2).toString());
-            System.out.println("vView: " + this.getScene().getMeshList().get(0).getTriangle(1).getVView(2).toString());
-            System.out.println("vProj: " + this.getScene().getMeshList().get(0).getTriangle(1).getVProjection(2).toString());
-            System.out.println("-------------\n\n");
-            */
             
-            m.sortTrianglesByDepth();
+            for (Triangle t:m.getTris()) {
+                if (t.isVisible()) {
+            */
+            for (int vIndex=0; vIndex<3; vIndex++) {
+                // CAMERA PROJECTION + RENDERING _______________________
+                // [10] camera projection matrix -> cMatrix_Proj - - - - - -
+                tToProject.setVProjection(UtilsMath.MultiplyMatrixVector(tToProject.getVView(vIndex), null, cMatrix_Proj), vIndex);
+                //System.out.println("Camera projection: " + t.getVProcess()[vIndex].toString());
+
+                // [11] camera perspective -> cMatrix_Persp - - - - - - - - 
+                float xWithPerspective = 0.0f, yWithPerspective = 0.0f;
+                if (tToProject.getVView(vIndex).getX() != 0.0f)
+                    xWithPerspective = tToProject.getVProjection(vIndex).getX()/Math.abs(tToProject.getVProjection(vIndex).getZ());
+                if (tToProject.getVView(vIndex).getY() != 0.0f)
+                    yWithPerspective = tToProject.getVProjection(vIndex).getY()/Math.abs(tToProject.getVProjection(vIndex).getZ());
+                tToProject.getVProjection(vIndex).setX(xWithPerspective);
+                tToProject.getVProjection(vIndex).setY(yWithPerspective);
+
+                // [12] scaling to view -> cMatrix_toView - - - - - - - - -
+                tToProject.setVProjection(UtilsMath.MultiplyMatrixVector(tToProject.getVProjection(vIndex), null, cMatrix_ScaleToView), vIndex);
+
+                /*
+                System.out.println("vProjection[0]: " + t.getVProjection(0).toString());
+                System.out.println("vView[0]: " + t.getVView(0).toString());
+                System.out.println("vProjection[1]: " + t.getVProjection(1).toString());
+                System.out.println("vView[1]: " + t.getVView(1).toString());
+                System.out.println("vProjection[2]: " + t.getVProjection(2).toString());
+                System.out.println("vView[2]: " + t.getVView(2).toString());
+                */
+            }
+
+                /*
+                System.out.println("Projection 1: " + t.getVProjection(0).toString() + "\n________________________");
+                // IF WE USE OLD LONECODER VERSION ___________________________________
+                for (int vIndex = 0; vIndex < 3; vIndex++) {
+                    t.setVProjection(UtilsMath.MultiplyMatrixVector(t.getVProcess(vIndex), null, cMatrix_Proj), vIndex);
+                    t.setVProjection(UtilsMath.DivVertex(t.getVProjection(vIndex),t.getVProjection(vIndex).getW()), vIndex);
+                    // X and Y are inverted
+                    t.getVProjection(vIndex).setX(t.getVProjection(vIndex).getX() * -1f);
+                    t.getVProjection(vIndex).setY(t.getVProjection(vIndex).getY() * -1f);
+                    t.getVProjection(vIndex).scaleToView();
+                }
+                System.out.println("Projection 2: " + t.getVProjection(0).toString() + "\n________________________");
+                */
+            //}
+
+            tToProject.calculateDepthValue();
             //System.out.println("Mesh!\n____________________________________________________________");                
-        }
+        }        
+        this.scene.sortProjectedTrianglesByDepth();
         
         // F. REPAINT
         this.engineView.repaint();

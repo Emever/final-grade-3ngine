@@ -100,9 +100,9 @@ public class Mesh {
         for (Triangle t:this.tris)
             t.calculateDepthValue();
     }
-    
+
     public void sortTrianglesByDepth() {
-           /*     
+        /*     
         int loop = 0;
         while (loop < this.tris.size()-1) {
             for (int j=0; j<this.tris.size()-2; j++)
