@@ -267,8 +267,8 @@ public class UtilsMath {
     false if our actual triangle lies entirely out of the screen
     */
     public static Triangle[] Triangle_ClipToPlane(Vertex planeP, Vertex planeN, Triangle t/*, ArrayList<Triangle> tList*/) {
-        Triangle[] tArray = new Triangle[3];
-        planeN.normalize();
+        Triangle[] tArray = new Triangle[2];
+        //planeN.normalize();   // already normalized in the constructor
         
         // create 2 arrays for storing our new vertexes
         int insidePointCount = 0, outsidePointCount = 0;

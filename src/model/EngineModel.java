@@ -18,6 +18,12 @@ public class EngineModel {
     public static final String DEFAULT_SCENE_NAME = "scene";
     public static final String DEFAULT_DIRECTORY_NAME = "Scenes";
     
+    public static final String[] RENDERING_MODES = {
+        "Full render",
+        "Wireframe",
+        "Surface"
+    };
+    
     public EngineModel() {
     }
     

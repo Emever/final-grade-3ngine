@@ -42,6 +42,7 @@ public class CameraModel {
         
         CameraModel.cameraPlane = new Vertex(0f,0f,-0.1f);
         CameraModel.cameraPlaneNormal = new Vertex(0f,0f,1f);
+        CameraModel.cameraPlaneNormal.normalize();
         
         this.vDir = new Vertex(0.0f, 0.0f, 0.0f);
         this.vRight = new Vertex(0.0f, 0.0f, 0.0f);

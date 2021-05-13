@@ -175,7 +175,7 @@ public class Triangle {
         //System.out.println("________________________________\n");
     }
     public void calculateDepthValue() {
-        /*      
+              
         // median value
         float x = (this.vProcess[0].getX() + 
                 this.vProcess[1].getX() +
@@ -188,19 +188,11 @@ public class Triangle {
                 this.vProcess[2].getZ()) / 3;
         Vertex vToCamera = new Vertex(x,y,z);
         this.depthValue = UtilsMath.SubVertex(EngineController.camera.getPos(), vToCamera).getLength();
-        */
+        
+        /*
         this.depthValue =(this.vProjection[0].getZ() + 
                 this.vProjection[1].getZ() +
                 this.vProjection[2].getZ()) / 3;
-        
-        // value closer to the camera
-        /*
-        this.depthValue =
-                Math.min(
-                    Math.min(
-                        this.vProjection[0].getZ(), 
-                        this.vProjection[1].getZ()),
-                this.vProjection[2].getZ());
         */
     }
     public void calculateVNormal() {

@@ -10,6 +10,9 @@ public class EngineLoopThread extends Thread {
     public static final int FPS = 70;
     public static final int TPFmillis = 1000/FPS;
     
+    public static double currentLoopTime;
+    public static double lastTimeLoopCheck;
+    public static double framingTime;
     public static double elapsedTime;
     public static int nFramesLoop;
     public static long frameCount;
@@ -19,6 +22,9 @@ public class EngineLoopThread extends Thread {
         EngineLoopThread.elapsedTime = TPFmillis;
         EngineLoopThread.nFramesLoop = 0;
         EngineLoopThread.frameCount = 0;
+        EngineLoopThread.lastTimeLoopCheck = 0;
+        EngineLoopThread.currentLoopTime = 0;
+        EngineLoopThread.framingTime = 0;
     }
     
     @Override
@@ -28,10 +34,13 @@ public class EngineLoopThread extends Thread {
         
         //try {
             while(this.controller.isLoopOn()) {
-                EngineLoopThread.elapsedTime = System.currentTimeMillis() - lastCheckedTime;
+                EngineLoopThread.currentLoopTime = System.currentTimeMillis();
+                EngineLoopThread.lastTimeLoopCheck = EngineLoopThread.currentLoopTime - lastCheckedTime;
                 //System.out.println("Elapsed Time: "+EngineLoopThread.elapsedTime);
+                EngineLoopThread.framingTime = EngineLoopThread.currentLoopTime;
 
-                if (EngineLoopThread.elapsedTime >= TPFmillis) {
+                if (EngineLoopThread.lastTimeLoopCheck >= TPFmillis) {
+                    EngineLoopThread.elapsedTime = EngineLoopThread.lastTimeLoopCheck;
                     EngineLoopThread.nFramesLoop++;
                     lastCheckedTime = System.currentTimeMillis();
                     EngineLoopThread.frameCount++;
@@ -42,6 +51,7 @@ public class EngineLoopThread extends Thread {
                         EngineLoopThread.nFramesLoop = 0;
                     }
                     this.controller.loopFunction();
+                    EngineLoopThread.framingTime = System.currentTimeMillis() - EngineLoopThread.framingTime;
                 }
             }
         /*

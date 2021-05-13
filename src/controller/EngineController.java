@@ -23,15 +23,22 @@ import view.EngineView;
 public class EngineController implements KeyListener {
     private EngineModel engineModel;
     private EngineView engineView;
-    private EngineLoopThread mainLoop;
-    private boolean loopIsOn;
     
     private UserInputController inputController;
     private FileController fileController;
     
+    public double deltaTime;
+    private EngineLoopThread mainLoop;
+    private boolean loopIsOn;
+    
     private SceneObject scene;
     public static CameraModel camera;
     public static Vertex lightDirection;
+    
+    private int renderingMode;
+        // 1: Full mode
+        // 2: Wireframe mode
+        // 3: Surface mode
     
     public EngineController(EngineModel engine) {
         this.loopIsOn = false;
@@ -41,6 +48,7 @@ public class EngineController implements KeyListener {
         this.inputController = new UserInputController(this);
 
         this.engineView = new EngineView(this);
+        this.renderingMode = 1;
     }
     
     // Class methods ___________________________________________________________
@@ -59,6 +67,9 @@ public class EngineController implements KeyListener {
     }
     public boolean isLoopOn() {
         return loopIsOn;
+    }
+    public int getRenderingMode() {
+        return renderingMode;
     }
     
     
@@ -156,6 +167,7 @@ public class EngineController implements KeyListener {
     }
     
     public void loopFunction() {
+        this.deltaTime = System.currentTimeMillis();
         float elapsedTime = (float)EngineLoopThread.TPFmillis/1000;
         
         // 1. we check player inputs
@@ -226,9 +238,6 @@ public class EngineController implements KeyListener {
                     );
             
             
-            // additional triangle list for the clipped triangles
-            ArrayList<Triangle> trisToProject = new ArrayList<>();
-            
             for (Triangle t:m.getTris()) {
                 //t.setVisible(true);
                 
@@ -252,12 +261,14 @@ public class EngineController implements KeyListener {
                 
                 // we got the new vertex data (after rotations, etc.)
                 t.calculateVNormal();
-                //t.setVisible(true);
-                t.checkIfFacingCamera();
+                t.setVisible(true);
+                if (this.renderingMode != 2)
+                    t.checkIfFacingCamera();
             
                 // __________________________________________________ CAMERA PROCESS
                 if (t.isVisible()) {  // not needed, as every triangle here is visible
-                    t.calculateLightingValue();
+                    if (this.renderingMode != 2)
+                        t.calculateLightingValue();
 
                     // 2. CAMERA VIEW CALCULATIONS _____________________________
                     for (int vIndex=0; vIndex<3; vIndex++) {
@@ -276,34 +287,17 @@ public class EngineController implements KeyListener {
                     //UtilsMath.Triangle_ClipToPlane(new Vertex(0f,0f,-0.5f), new Vertex(0f,0f,1f), t, trisToProject);
                     Triangle[] tList = UtilsMath.Triangle_ClipToPlane(CameraModel.cameraPlane, CameraModel.cameraPlaneNormal, t);
                     if (t.isVisible())
-                        for (Triangle tList1 : tList) {
-                            //System.out.println("Adding 1 triangle to the projection list...!");
-                            if (!isNull(tList1)) this.scene.addTriangleToProject(tList1);
-                        }
+                        for (Triangle tList1 : tList)
+                            if (!isNull(tList1))
+                                this.scene.addTriangleToProject(tList1);
                 }
             }
         }
         
         for (Triangle tToProject:this.scene.getTrisToProject()) {
-            /*
-            // now we need to remove the triangles that have id='-1'
-            for (int triangleIndex=m.getTris().size()-1; triangleIndex>=0; triangleIndex--) {
-                if (m.getTriangle(triangleIndex).getId() < 0)
-                    m.removeTriangle(triangleIndex);
-            }
-            // and add the new triangles to the meshlist.getTris
-            int nLoop = 0;
-            while (nLoop < trisToProject.size()) {
-                m.getTris().add(trisToProject.get(nLoop));
-                nLoop++;
-            }
             
-            
-            for (Triangle t:m.getTris()) {
-                if (t.isVisible()) {
-            */
             for (int vIndex=0; vIndex<3; vIndex++) {
-                // CAMERA PROJECTION + RENDERING _______________________
+                // CAMERA PROJECTION + RENDERING _______________________________
                 // [10] camera projection matrix -> cMatrix_Proj - - - - - -
                 tToProject.setVProjection(UtilsMath.MultiplyMatrixVector(tToProject.getVView(vIndex), null, cMatrix_Proj), vIndex);
                 //System.out.println("Camera projection: " + t.getVProcess()[vIndex].toString());
@@ -321,12 +315,12 @@ public class EngineController implements KeyListener {
                 tToProject.setVProjection(UtilsMath.MultiplyMatrixVector(tToProject.getVProjection(vIndex), null, cMatrix_ScaleToView), vIndex);
 
                 /*
-                System.out.println("vProjection[0]: " + t.getVProjection(0).toString());
-                System.out.println("vView[0]: " + t.getVView(0).toString());
-                System.out.println("vProjection[1]: " + t.getVProjection(1).toString());
-                System.out.println("vView[1]: " + t.getVView(1).toString());
-                System.out.println("vProjection[2]: " + t.getVProjection(2).toString());
-                System.out.println("vView[2]: " + t.getVView(2).toString());
+                System.out.println("vProjection[0]: " + tToProject.getVProjection(0).toString());
+                System.out.println("vView[0]: " + tToProject.getVView(0).toString());
+                System.out.println("vProjection[1]: " + tToProject.getVProjection(1).toString());
+                System.out.println("vView[1]: " + tToProject.getVView(1).toString());
+                System.out.println("vProjection[2]: " + tToProject.getVProjection(2).toString());
+                System.out.println("vView[2]: " + tToProject.getVView(2).toString());
                 */
             }
 
@@ -347,9 +341,12 @@ public class EngineController implements KeyListener {
 
             tToProject.calculateDepthValue();
             //System.out.println("Mesh!\n____________________________________________________________");                
-        }        
-        this.scene.sortProjectedTrianglesByDepth();
+        }
+        if (this.renderingMode != 2)
+            this.scene.sortProjectedTrianglesByDepth();
         
+        this.deltaTime = System.currentTimeMillis() - this.deltaTime;
+
         // F. REPAINT
         this.engineView.repaint();
         //System.out.println("Repainted!\n_____________________________________________________________________\n");
@@ -428,6 +425,24 @@ public class EngineController implements KeyListener {
                 
             case KeyEvent.VK_P:
                 System.out.println("Pause!");
+                break;
+                
+            case KeyEvent.VK_1:
+                //System.out.println("now rendering on full mode");
+                if (this.renderingMode != 1)
+                    this.renderingMode = 1;
+                break;
+                
+            case KeyEvent.VK_2:
+                //System.out.println("now rendering on wireframe mode");
+                if (this.renderingMode != 2)
+                    this.renderingMode = 2;
+                break;
+                
+            case KeyEvent.VK_3:
+                //System.out.println("now rendering on surface mode");
+                if (this.renderingMode != 3)
+                    this.renderingMode = 3;
                 break;
         }
     }

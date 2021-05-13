@@ -132,7 +132,7 @@ public class FileController {
     public boolean openObjectFileChooser() {
         boolean openFile = false;
         JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle("Open your scene");
+        fc.setDialogTitle("Open your scene file (.obj)");
         fc.setCurrentDirectory(this.scenesDirectory);
         fc.setFileFilter(new FileNameExtensionFilter("Obj files only", "obj"));
         

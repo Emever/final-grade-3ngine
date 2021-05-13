@@ -56,8 +56,7 @@ public class SceneObject {
         this.meshList.add(newMesh);
     }
     public void clearProjectionList() {
-        for (int l=this.trisToProject.size()-1; l>=0; l--)
-            this.trisToProject.removeAll(this.trisToProject);
+        this.trisToProject.clear();
     }
     public void addTriangleToProject(Triangle newTriangle) {
         this.trisToProject.add(newTriangle);
@@ -66,20 +65,22 @@ public class SceneObject {
     
     public void sortProjectedTrianglesByDepth() {
         int i0 = 0;
-        while (i0 < this.trisToProject.size()-2) {
+        while (i0 < this.trisToProject.size()-1) {
             if (this.trisToProject.get(i0).isVisible()) {
                 int maxLocation = i0;
                 float max = this.trisToProject.get(maxLocation).getDepthValue();
-                for (int iF=i0+1; iF<this.trisToProject.size()-1; iF++)
+                for (int iF=i0+1; iF<this.trisToProject.size(); iF++)
                     if (this.trisToProject.get(iF).isVisible())
                         if (max < this.trisToProject.get(iF).getDepthValue()) {
                             maxLocation = iF;
                             max = this.trisToProject.get(iF).getDepthValue();
                         }
-                // SWAP!
-                Triangle auxT = this.trisToProject.get(i0);
-                this.trisToProject.set(i0, this.trisToProject.get(maxLocation));
-                this.trisToProject.set(maxLocation, auxT);
+                // SWAP! (only needed if i0 is not the max)
+                if (i0 != maxLocation) {
+                    Triangle auxT = this.trisToProject.get(i0);
+                    this.trisToProject.set(i0, this.trisToProject.get(maxLocation));
+                    this.trisToProject.set(maxLocation, auxT);
+                }
             }
             i0++;
         }
