@@ -35,12 +35,12 @@ public class CameraModel {
     public CameraModel(EngineController controller) {
         this.engine = controller;
         this.pos = new Vertex(0.0f,0.0f,0.0f, "Camera position");
-        this.moveSpeed = 2f;
+        this.moveSpeed = 5f;
         
-        this.rot = new Vertex(0.0f, 0.0f, 0.0f);
+        this.rot = new Vertex(0.0f, 0, 0.0f);
         this.rotSpeed = new Vertex(UtilsMath.DegToRads(60), UtilsMath.DegToRads(90), 0.0f);
         
-        CameraModel.cameraPlane = new Vertex(0f,0f,-0.1f);
+        CameraModel.cameraPlane = new Vertex(0f,0f,-.1f);
         CameraModel.cameraPlaneNormal = new Vertex(0f,0f,1f);
         CameraModel.cameraPlaneNormal.normalize();
         
@@ -91,7 +91,11 @@ public class CameraModel {
     
     
     public void init() {
-        this.vDir = UtilsMath.SubVertex(new Vertex(0f,0f,0f), this.pos);
+        this.vDir = new Vertex(
+                (float)Math.cos(this.rot.getY()) - (float)Math.PI/2,
+                0f,
+                (float)Math.sin(this.rot.getY()) - (float)Math.PI/2);
+        System.out.println((float)Math.cos(this.rot.getY()));
         this.vDir.normalize();
         
         this.vRight = UtilsMath.CrossProduct(this.vDir, this.vUp, null);
@@ -109,15 +113,12 @@ public class CameraModel {
         this.createRotationMatrixZ(this.rot.getZ());
         
         // update vDir vector (so we can move properly towards cam direction)
-        this.vDir.setX((float)Math.cos(-1.0f*(float)Math.PI/2 + this.rot.getY()));
-        this.vDir.setZ(((float)Math.sin(-1.0f*(float)Math.PI/2 + this.rot.getY())));
+        this.vDir.setX((float)Math.cos(this.rot.getY() - (float)Math.PI/2));
+        this.vDir.setZ((float)Math.sin(this.rot.getY() - (float)Math.PI/2));
         this.vDir.normalize();
         
         this.vRight = UtilsMath.CrossProduct(this.vDir, this.vUp, null);
         this.vRight.normalize();
-        
-        //System.out.println("camera vRight:\t" + this.vRight.toString());
-        //System.out.println("Camera vDirection:\t" + this.vDir.toString());
     }
     
     public void createProjectionMatrix() {
@@ -178,7 +179,5 @@ public class CameraModel {
             this.getRot().setZ(this.getRot().getZ() - 2*(float)Math.PI);
         else if (this.getRot().getZ() <= -2*(float)Math.PI)  // -too less Z rot
             this.getRot().setZ(this.getRot().getZ() + 2*(float)Math.PI);
-        
-        //System.out.println("\n___________\nrot: " + this.rot.toString());
     }
 }

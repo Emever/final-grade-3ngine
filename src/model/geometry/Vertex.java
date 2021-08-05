@@ -22,14 +22,6 @@ public class Vertex {
         this.w = 1;
         this.task = "";
     }
-    public Vertex(int id, float x, float y) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.z = 0;
-        this.w = 1;
-        this.task = "";
-    }
     public Vertex(float x, float y, float z) {
         this.id = 0;
         this.x = x;
@@ -45,14 +37,6 @@ public class Vertex {
         this.z = z;
         this.w = 1;
         this.task = task;
-    }
-    public Vertex(float x, float y, float z, float w) {
-        this.id = 0;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
-        this.task = "";
     }
     public Vertex(Vertex v0) {
         this.id = v0.getId();
@@ -106,13 +90,6 @@ public class Vertex {
     }
     public void setTask(String task) {
         this.task = task;
-    }
-    
-    public void scaleToView() {
-        this.x += 1f;
-        this.x *= 0.5f * (float)EngineModel.dimX; // scale to half of the screen
-        this.y += 1f;
-        this.y *= 0.5f * (float)EngineModel.dimY; // scale to half of the screen
     }
     
     public void translate(float x, float y, float z) {

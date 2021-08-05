@@ -1,14 +1,10 @@
 package controller;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
 /**
  *
  * @author Joel
  */
-public class UserInputController extends KeyAdapter {
+public class UserInputController  {
     private EngineController engineController;
     
     private boolean[] inputWASD;    // true if pressed, false otherwise
@@ -54,17 +50,5 @@ public class UserInputController extends KeyAdapter {
     }
     public void setInputCTRL(boolean inputCTRL) {
         this.inputCTRL = inputCTRL;
-    }
-    
-    
-    
-    @Override
-    public void keyPressed(KeyEvent e){
-        System.out.println("Key pressed!");
-        engineController.keyPressed(e);                    
-    }
-    @Override
-    public void keyReleased(KeyEvent e){       
-        engineController.keyReleased(e);                   
     }
 }

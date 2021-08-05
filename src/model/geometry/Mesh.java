@@ -26,10 +26,8 @@ public class Mesh {
         this.addToPos = new Vertex(0.0f, 0.0f, 0.0f);
         
         this.rot = new Vertex(0.0f, 0.0f, 0.0f);
+        this.addToRot = new Vertex(0.0f, 0.0f, 0.0f);
         //this.addToRot = new Vertex(UtilsMath.DegToRads(45), UtilsMath.DegToRads(5), -UtilsMath.DegToRads(15));
-        this.addToRot = new Vertex(0f, UtilsMath.DegToRads(45), 0f);
-        //this.addToRot = new Vertex(UtilsMath.DegToRads(45), 0f, 0f);
-        //this.addToRot = new Vertex(0f, 0f, UtilsMath.DegToRads(45));
     }
 
     public String getName() {
@@ -87,76 +85,11 @@ public class Mesh {
     public void removeTriangle(int i) {
         this.tris.remove(i);
     }
-    
-    public int getMaxId() {
-        int max = 0;
-        for (Triangle t:this.tris)
-            if (max <t.getId())
-                max = t.getId();
-        return max;
-    }
 
     public void loadDepthValues() {
         for (Triangle t:this.tris)
             t.calculateDepthValue();
     }
-
-    public void sortTrianglesByDepth() {
-        /*     
-        int loop = 0;
-        while (loop < this.tris.size()-1) {
-            for (int j=0; j<this.tris.size()-2; j++)
-                if (this.tris.get(j).getDepthValue() < this.tris.get(j+1).getDepthValue())
-                {
-                    // option 1
-                    Triangle aux = this.tris.get(j);
-                    this.tris.set(j, this.tris.get(j+1));
-                    this.tris.set(j+1, aux);
-                    
-                    //option 2: no flickering
-                    //this.tris.add(j, this.tris.get(j+1));
-                    //this.tris.remove(j+2); 
-                }
-            loop++;
-        }
-        */
-
-        int i0 = 0;
-        while (i0 < this.tris.size()-2) {
-            if (this.tris.get(i0).isVisible()) {
-                int maxLocation = i0;
-                float max = this.tris.get(maxLocation).getDepthValue();
-                for (int iF=i0+1; iF<this.tris.size()-1; iF++)
-                    if (this.tris.get(iF).isVisible())
-                        if (max < this.tris.get(iF).getDepthValue()) {
-                            maxLocation = iF;
-                            max = this.tris.get(iF).getDepthValue();
-                        }
-                // SWAP!
-                Triangle auxT = this.tris.get(i0);
-                this.tris.set(i0, this.tris.get(maxLocation));
-                this.tris.set(maxLocation, auxT);
-            }
-            i0++;
-        }
-    }
-
-    public void loadTransformations(float[][] matrix) {
-        for (Triangle t:this.tris) {
-            t.calculateVertexTransformation(matrix);
-        }
-    }
-    
-    public void loadLightingValues() {
-        for (Triangle t:this.tris) {
-            t.calculateLightingValue();
-        }
-    }
-    
-    
-    
-    
-    
     
     
     public void delete() {

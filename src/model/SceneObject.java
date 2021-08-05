@@ -75,7 +75,7 @@ public class SceneObject {
                             maxLocation = iF;
                             max = this.trisToProject.get(iF).getDepthValue();
                         }
-                // SWAP! (only needed if i0 is not the max)
+                // intercambio (solo es necesario si el máximo ha cambiado)
                 if (i0 != maxLocation) {
                     Triangle auxT = this.trisToProject.get(i0);
                     this.trisToProject.set(i0, this.trisToProject.get(maxLocation));

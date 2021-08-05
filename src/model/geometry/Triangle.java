@@ -168,11 +168,7 @@ public class Triangle {
     }
     public void checkIfFacingCamera() {
         Vertex cameraRay = UtilsMath.SubVertex(this.vProcess[0], EngineController.camera.getPos());
-        //System.out.println("cameraRay" + cameraRay.toString());
         this.visible = UtilsMath.DotProduct(this.vNormal, cameraRay) < 0f;
-        //System.out.println("camVDir: " + EngineController.camera.getvDir().toString());
-        //System.out.println("vNormal: " + this.vNormal.toString() + " -> dot product: " + String.format("%.2f", dotProduct));
-        //System.out.println("________________________________\n");
     }
     public void calculateDepthValue() {
               
@@ -188,13 +184,8 @@ public class Triangle {
                 this.vProcess[2].getZ()) / 3;
         Vertex vToCamera = new Vertex(x,y,z);
         this.depthValue = UtilsMath.SubVertex(EngineController.camera.getPos(), vToCamera).getLength();
-        
-        /*
-        this.depthValue =(this.vProjection[0].getZ() + 
-                this.vProjection[1].getZ() +
-                this.vProjection[2].getZ()) / 3;
-        */
     }
+    
     public void calculateVNormal() {
         // we need 2 vectors with the same origin vertex: (1)
         Vertex vector1 = UtilsMath.SubVertex(this.vProcess[1], this.vProcess[0]);
@@ -206,42 +197,8 @@ public class Triangle {
         this.vNormal.normalize();
         
     }
-    public void scaleVertexToView() {
-        for (int i=0; i<3; i++)
-            this.vProcess[i].scaleToView();
-    }
     
     // EDIT TRIANGLE METHODS
-    public void translate(float x, float y, float z) {
-        this.vProcess[0].translate(x,y,z);
-        this.vProcess[1].translate(x,y,z);
-        this.vProcess[2].translate(x,y,z);
-    }
-    public void rotate(String axis, float[][] matrix) {
-        axis = axis.toUpperCase();
-
-        switch(axis) {
-            case "X":
-                for (int i=0; i<3; i++)
-                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], matrix);
-                break;
-            case "Y":
-                for (int i=0; i<3; i++)
-                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], matrix);
-                break;
-            case "Z":
-                for (int i=0; i<3; i++)
-                    UtilsMath.MultiplyMatrixVector(this.vProcess[i], this.vProcess[i], matrix);
-                break;
-        }
-    }
-    public void calculateVertexTransformation(float[][] matrix) {
-       for (int i=0; i<3; i++) {
-           Vertex vAux = new Vertex();
-           UtilsMath.MultiplyMatrixVector(this.vProcess[i], vAux, matrix);
-           UtilsMath.CopyVertexValues(vAux, this.vProcess[i]);
-       }
-    }
     public void calculateLightingValue() {
         // we calculate the Dot Product of every T with the scene light
         this.lightingValue = UtilsMath.DotProduct(this.vNormal, EngineController.lightDirection);

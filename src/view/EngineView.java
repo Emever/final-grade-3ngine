@@ -62,21 +62,6 @@ public class EngineView extends JComponent {
     public void updateTitle(String newTitle) {
         this.window.setTitle(this.window.getTitle() + " - " + newTitle);
     }
-    /*
-    public void paint(Graphics g) {
-        this.offscreenImg = createImage(
-                EngineModel.dimX,
-                EngineModel.dimY
-            );
-        this.offscreenG = this.offscreenImg.getGraphics();
-        
-        this.paintOffscreen(this.offscreenG); // now "paint"
-        
-        //flip
-        g.drawImage(this.offscreenImg, 0, 0, this);
-        //System.out.println("In here!");
-    }
-    */
     
     @Override
     public void paint(Graphics g) {
@@ -99,10 +84,10 @@ public class EngineView extends JComponent {
         });
         
         // Show the "controls" panel info
-        this.drawControlPanel();
+        //this.drawControlPanel();
         
         // Show the debugging and framing info
-        this.drawFramingInfoPanel();
+        //this.drawFramingInfoPanel();
         
         this.drawRenderingMode();
     }
@@ -127,16 +112,28 @@ public class EngineView extends JComponent {
     }
     
     public void drawRenderingMode() {
+        g.setFont(new Font("Sans-serif", Font.PLAIN, 16));
+        /*        
         // background rectangle with alpha
         g.setColor(new Color(0f,0f,0f,.2f));
         g.fillRect(4, EngineModel.dimY-225, 254, 40);
         // rendering mode
         g.setColor(new Color(.5f,.8f,1f));
-        g.setFont(new Font("Sans-serif", Font.PLAIN, 16));
         g.drawString("Rendering mode: " +
                 EngineModel.RENDERING_MODES[this.engineController.getRenderingMode()-1] +
                 " (" + this.engineController.getRenderingMode() + "/3)",
                 13, EngineModel.dimY-200);
+        */
+        // background rectangle with alpha
+        g.setColor(new Color(0f,0f,0f,.7f));
+        //g.fillRect(4, EngineModel.dimY-225, 254, 40);
+        g.fillRect(4, EngineModel.dimY-80, 254, 40);
+        // rendering mode
+        g.setColor(new Color(.8f,.8f,.8f));
+        g.drawString("Rendering mode: " +
+                EngineModel.RENDERING_MODES[this.engineController.getRenderingMode()-1] +
+                " (" + this.engineController.getRenderingMode() + "/3)",
+                13, EngineModel.dimY-55);
     }
     
     public void drawControlPanel() {
